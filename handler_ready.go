@@ -10,5 +10,5 @@ func getReadiness(w http.ResponseWriter, r *http.Request) {
 }
 
 func getError(w http.ResponseWriter, r *http.Request) {
-	respondWithError(w, http.StatusInternalServerError, "Something went wrong")
+	respondWithErrorText(w, http.StatusInternalServerError, "Something went wrong")
 }

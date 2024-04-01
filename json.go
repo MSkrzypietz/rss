@@ -9,7 +9,7 @@ import (
 func respondWithJSON(w http.ResponseWriter, status int, payload interface{}) {
 	data, err := json.Marshal(payload)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		respondWithError(w, http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -17,7 +17,11 @@ func respondWithJSON(w http.ResponseWriter, status int, payload interface{}) {
 	w.Write(data)
 }
 
-func respondWithError(w http.ResponseWriter, code int, msg string) {
+func respondWithError(w http.ResponseWriter, code int) {
+	respondWithErrorText(w, code, http.StatusText(code))
+}
+
+func respondWithErrorText(w http.ResponseWriter, code int, msg string) {
 	if code > 499 {
 		log.Printf("Responding with 5xx error: %v\n", msg)
 	}
