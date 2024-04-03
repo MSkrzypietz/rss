@@ -42,6 +42,7 @@ func main() {
 	apiCfg := apiConfig{DB: database.New(db)}
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /v1/users", apiCfg.getUsers)
 	mux.HandleFunc("POST /v1/users", apiCfg.createUser)
 	mux.HandleFunc("GET /v1/readiness", getReadiness)
 	mux.HandleFunc("GET /v1/err", getError)
