@@ -30,6 +30,7 @@ func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user da
 		return
 	}
 
+	// TODO: Should probably add a transaction...
 	feed, err := cfg.DB.CreateFeed(r.Context(), database.CreateFeedParams{
 		ID:     uuid.New(),
 		Name:   params.Name,
@@ -37,9 +38,26 @@ func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user da
 		UserID: user.ID,
 	})
 	if err != nil {
-		respondWithErrorText(w, http.StatusInternalServerError, "could not create feed")
+		respondWithError(w, http.StatusInternalServerError)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, feed)
+	feedFollow, err := cfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+		ID:     uuid.New(),
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError)
+		return
+	}
+
+	type returnVals struct {
+		Feed       database.Feed       `json:"feed"`
+		FeedFollow database.FeedFollow `json:"feed_follow"`
+	}
+	respondWithJSON(w, http.StatusOK, returnVals{
+		Feed:       feed,
+		FeedFollow: feedFollow,
+	})
 }
