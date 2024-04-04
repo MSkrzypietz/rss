@@ -42,10 +42,16 @@ func main() {
 	apiCfg := apiConfig{DB: database.New(db)}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /v1/users", apiCfg.getUsers)
+
+	mux.HandleFunc("GET /v1/users", apiCfg.authenticate(apiCfg.getUsers))
 	mux.HandleFunc("POST /v1/users", apiCfg.createUser)
+
+	mux.HandleFunc("GET /v1/feeds", apiCfg.getFeeds)
+	mux.HandleFunc("POST /v1/feeds", apiCfg.authenticate(apiCfg.createFeed))
+
 	mux.HandleFunc("GET /v1/readiness", getReadiness)
 	mux.HandleFunc("GET /v1/err", getError)
+
 	corsMux := middlewareCors(mux)
 
 	server := http.Server{Addr: ":" + port, Handler: corsMux}

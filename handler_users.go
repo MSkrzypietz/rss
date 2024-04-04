@@ -5,7 +5,6 @@ import (
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/google/uuid"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -35,15 +34,6 @@ func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, user)
 }
 
-func (cfg *apiConfig) getUsers(w http.ResponseWriter, r *http.Request) {
-	authHeader := r.Header.Get("Authorization")
-	apiKey, _ := strings.CutPrefix(authHeader, "ApiKey ")
-
-	user, err := cfg.DB.GetUser(r.Context(), apiKey)
-	if err != nil {
-		respondWithError(w, http.StatusUnauthorized)
-		return
-	}
-
+func (cfg *apiConfig) getUsers(w http.ResponseWriter, r *http.Request, user database.User) {
 	respondWithJSON(w, http.StatusOK, user)
 }
