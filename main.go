@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/MSkrzypietz/rss/internal/database"
@@ -40,6 +41,13 @@ func main() {
 	}
 
 	apiCfg := apiConfig{DB: database.New(db)}
+
+	//id, _ := uuid.Parse("4c4984c8-e5b4-48d6-a80b-4448e5e7f43f")
+	//apiCfg.DB.MarkFeedFetched(context.Background(), id)
+
+	lastFeeds, err := apiCfg.DB.GetNextFeedsToFetch(context.Background(), 2)
+	fmt.Println(lastFeeds[0].LastFetchedAt)
+	fmt.Println(lastFeeds[1].LastFetchedAt)
 
 	mux := http.NewServeMux()
 
