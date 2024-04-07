@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"github.com/MSkrzypietz/rss/internal/database"
@@ -10,10 +9,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 type apiConfig struct {
-	DB *database.Queries
+	DB         *database.Queries
+	httpClient *http.Client
 }
 
 func main() {
@@ -40,14 +41,10 @@ func main() {
 		log.Fatalf("Cannot ping database: %v", err)
 	}
 
-	apiCfg := apiConfig{DB: database.New(db)}
-
-	//id, _ := uuid.Parse("4c4984c8-e5b4-48d6-a80b-4448e5e7f43f")
-	//apiCfg.DB.MarkFeedFetched(context.Background(), id)
-
-	lastFeeds, err := apiCfg.DB.GetNextFeedsToFetch(context.Background(), 2)
-	fmt.Println(lastFeeds[0].LastFetchedAt)
-	fmt.Println(lastFeeds[1].LastFetchedAt)
+	apiCfg := apiConfig{
+		DB:         database.New(db),
+		httpClient: &http.Client{Timeout: 5 * time.Second},
+	}
 
 	mux := http.NewServeMux()
 
