@@ -46,6 +46,8 @@ func main() {
 		httpClient: &http.Client{Timeout: 5 * time.Second},
 	}
 
+	go apiCfg.continuousFeedFetcher()
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /v1/users", apiCfg.authenticate(apiCfg.getUsers))
