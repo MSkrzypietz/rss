@@ -2,13 +2,18 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
+	"errors"
+	"github.com/MSkrzypietz/rss/internal/database"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"log"
 	"sync"
 	"time"
 )
 
-const fetchInterval = 30 * time.Second
+const fetchInterval = 60 * time.Second
 const fetchLimit = 2
 
 type FetchedFeed struct {
@@ -20,6 +25,7 @@ type FetchedFeed struct {
 			Title       string `xml:"title"`
 			Link        string `xml:"link"`
 			Description string `xml:"description"`
+			PublishedAt string `xml:"pubDate"`
 		} `xml:"item"`
 	} `xml:"channel"`
 }
@@ -71,7 +77,30 @@ func (cfg *apiConfig) continuousFeedFetcher() {
 
 				log.Printf("Fetched feed %v: %v\n", feed.Url, fetchedFeed.Channel.Title)
 				for _, feedItem := range fetchedFeed.Channel.Items {
-					log.Println(feedItem.Title)
+					publishedAt, err := time.Parse(time.RFC1123, feedItem.PublishedAt)
+					if err != nil {
+						log.Printf("Feed Fetcher could not parse the published date %v: %v\n", feedItem.PublishedAt, err)
+						continue
+					}
+
+					_, err = cfg.DB.CreatePost(context.Background(), database.CreatePostParams{
+						ID:    uuid.New(),
+						Title: feedItem.Title,
+						Url:   feedItem.Link,
+						Description: sql.NullString{
+							String: feedItem.Description,
+							Valid:  true,
+						},
+						PublishedAt: sql.NullTime{
+							Time:  publishedAt,
+							Valid: true,
+						},
+						FeedID: feed.ID,
+					})
+					var pqErr *pq.Error
+					if err != nil && errors.As(err, &pqErr) && pqErr.Code.Name() != "unique_violation" {
+						log.Printf("Feed Fetcher could not get the post: %v - %v\n", pqErr.Code.Name(), pqErr.Message)
+					}
 				}
 			}()
 		}
