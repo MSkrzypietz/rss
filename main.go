@@ -18,8 +18,10 @@ type apiConfig struct {
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalln(err)
+	if os.Getenv("APP_ENV") != "production" {
+		if err := godotenv.Load(); err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	port := os.Getenv("PORT")
