@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"github.com/MSkrzypietz/rss/internal/database"
-	"github.com/google/uuid"
 	"net/http"
 )
 
@@ -32,7 +31,6 @@ func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user da
 
 	// TODO: Should probably add a transaction...
 	feed, err := cfg.DB.CreateFeed(r.Context(), database.CreateFeedParams{
-		ID:     uuid.New(),
 		Name:   params.Name,
 		Url:    params.Url,
 		UserID: user.ID,
@@ -43,7 +41,6 @@ func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user da
 	}
 
 	feedFollow, err := cfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
-		ID:     uuid.New(),
 		UserID: user.ID,
 		FeedID: feed.ID,
 	})

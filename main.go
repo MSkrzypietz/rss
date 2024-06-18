@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	"log"
 	"net/http"
 	"os"
@@ -32,7 +32,7 @@ func main() {
 		log.Fatalln("DB_URL is undefined")
 	}
 
-	db, err := sql.Open("postgres", dbURL)
+	db, err := sql.Open("libsql", dbURL)
 	if err != nil {
 		log.Fatalf("Cannot open database connection: %v", err)
 	}

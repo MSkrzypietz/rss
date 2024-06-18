@@ -7,30 +7,22 @@ package database
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 const createFeed = `-- name: CreateFeed :one
-INSERT INTO feeds (id, name, url, user_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO feeds (name, url, user_id)
+VALUES (?, ?, ?)
     RETURNING id, created_at, updated_at, name, url, user_id, last_fetched_at
 `
 
 type CreateFeedParams struct {
-	ID     uuid.UUID `json:"id"`
-	Name   string    `json:"name"`
-	Url    string    `json:"url"`
-	UserID uuid.UUID `json:"user_id"`
+	Name   string `json:"name"`
+	Url    string `json:"url"`
+	UserID int64  `json:"user_id"`
 }
 
 func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, error) {
-	row := q.db.QueryRowContext(ctx, createFeed,
-		arg.ID,
-		arg.Name,
-		arg.Url,
-		arg.UserID,
-	)
+	row := q.db.QueryRowContext(ctx, createFeed, arg.Name, arg.Url, arg.UserID)
 	var i Feed
 	err := row.Scan(
 		&i.ID,
@@ -80,10 +72,10 @@ func (q *Queries) GetFeeds(ctx context.Context) ([]Feed, error) {
 }
 
 const getNextFeedsToFetch = `-- name: GetNextFeedsToFetch :many
-SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds ORDER BY last_fetched_at NULLS FIRST LIMIT $1
+SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds ORDER BY last_fetched_at NULLS FIRST LIMIT ?
 `
 
-func (q *Queries) GetNextFeedsToFetch(ctx context.Context, limit int32) ([]Feed, error) {
+func (q *Queries) GetNextFeedsToFetch(ctx context.Context, limit int64) ([]Feed, error) {
 	rows, err := q.db.QueryContext(ctx, getNextFeedsToFetch, limit)
 	if err != nil {
 		return nil, err
@@ -115,10 +107,10 @@ func (q *Queries) GetNextFeedsToFetch(ctx context.Context, limit int32) ([]Feed,
 }
 
 const markFeedFetched = `-- name: MarkFeedFetched :exec
-UPDATE feeds SET last_fetched_at=Now(), updated_at=Now() WHERE id=$1
+UPDATE feeds SET last_fetched_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP WHERE id=?
 `
 
-func (q *Queries) MarkFeedFetched(ctx context.Context, id uuid.UUID) error {
+func (q *Queries) MarkFeedFetched(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, markFeedFetched, id)
 	return err
 }

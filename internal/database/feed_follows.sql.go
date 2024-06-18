@@ -7,24 +7,21 @@ package database
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 const createFeedFollow = `-- name: CreateFeedFollow :one
-INSERT INTO feed_follows (id, user_id, feed_id)
-VALUES ($1, $2, $3)
+INSERT INTO feed_follows (user_id, feed_id)
+VALUES (?, ?)
     RETURNING id, created_at, updated_at, user_id, feed_id
 `
 
 type CreateFeedFollowParams struct {
-	ID     uuid.UUID `json:"id"`
-	UserID uuid.UUID `json:"user_id"`
-	FeedID uuid.UUID `json:"feed_id"`
+	UserID int64 `json:"user_id"`
+	FeedID int64 `json:"feed_id"`
 }
 
 func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowParams) (FeedFollow, error) {
-	row := q.db.QueryRowContext(ctx, createFeedFollow, arg.ID, arg.UserID, arg.FeedID)
+	row := q.db.QueryRowContext(ctx, createFeedFollow, arg.UserID, arg.FeedID)
 	var i FeedFollow
 	err := row.Scan(
 		&i.ID,
@@ -37,12 +34,12 @@ func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowPara
 }
 
 const deleteFeedFollow = `-- name: DeleteFeedFollow :exec
-DELETE FROM feed_follows WHERE id=$1 and user_id=$2
+DELETE FROM feed_follows WHERE id=? and user_id=?
 `
 
 type DeleteFeedFollowParams struct {
-	ID     uuid.UUID `json:"id"`
-	UserID uuid.UUID `json:"user_id"`
+	ID     int64 `json:"id"`
+	UserID int64 `json:"user_id"`
 }
 
 func (q *Queries) DeleteFeedFollow(ctx context.Context, arg DeleteFeedFollowParams) error {
@@ -51,10 +48,10 @@ func (q *Queries) DeleteFeedFollow(ctx context.Context, arg DeleteFeedFollowPara
 }
 
 const getFeedFollows = `-- name: GetFeedFollows :many
-SELECT id, created_at, updated_at, user_id, feed_id from feed_follows WHERE user_id=$1
+SELECT id, created_at, updated_at, user_id, feed_id from feed_follows WHERE user_id=?
 `
 
-func (q *Queries) GetFeedFollows(ctx context.Context, userID uuid.UUID) ([]FeedFollow, error) {
+func (q *Queries) GetFeedFollows(ctx context.Context, userID int64) ([]FeedFollow, error) {
 	rows, err := q.db.QueryContext(ctx, getFeedFollows, userID)
 	if err != nil {
 		return nil, err

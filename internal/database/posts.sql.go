@@ -8,28 +8,24 @@ package database
 import (
 	"context"
 	"database/sql"
-
-	"github.com/google/uuid"
 )
 
 const createPost = `-- name: CreatePost :one
-INSERT INTO posts (id, title, url, description, published_at, feed_id)
-    VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO posts (title, url, description, published_at, feed_id)
+    VALUES (?, ?, ?, ?, ?)
     RETURNING id, created_at, updated_at, title, url, description, published_at, feed_id
 `
 
 type CreatePostParams struct {
-	ID          uuid.UUID      `json:"id"`
 	Title       string         `json:"title"`
 	Url         string         `json:"url"`
 	Description sql.NullString `json:"description"`
 	PublishedAt sql.NullTime   `json:"published_at"`
-	FeedID      uuid.UUID      `json:"feed_id"`
+	FeedID      int64          `json:"feed_id"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
 	row := q.db.QueryRowContext(ctx, createPost,
-		arg.ID,
 		arg.Title,
 		arg.Url,
 		arg.Description,
@@ -53,13 +49,13 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 const getPostsForUser = `-- name: GetPostsForUser :many
 SELECT p.id, p.created_at, p.updated_at, p.title, p.url, p.description, p.published_at, p.feed_id FROM posts p
     INNER JOIN feed_follows f ON f.feed_id=p.feed_id
-    WHERE f.user_id=$1
-    ORDER BY p.published_at DESC LIMIT $2
+    WHERE f.user_id=?
+    ORDER BY p.published_at DESC LIMIT ?
 `
 
 type GetPostsForUserParams struct {
-	UserID uuid.UUID `json:"user_id"`
-	Limit  int32     `json:"limit"`
+	UserID int64 `json:"user_id"`
+	Limit  int64 `json:"limit"`
 }
 
 func (q *Queries) GetPostsForUser(ctx context.Context, arg GetPostsForUserParams) ([]Post, error) {

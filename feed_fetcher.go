@@ -6,8 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"github.com/MSkrzypietz/rss/internal/database"
-	"github.com/google/uuid"
-	"github.com/lib/pq"
+	"github.com/mattn/go-sqlite3"
 	"log"
 	"sync"
 	"time"
@@ -84,7 +83,6 @@ func (cfg *apiConfig) continuousFeedFetcher() {
 					}
 
 					_, err = cfg.DB.CreatePost(context.Background(), database.CreatePostParams{
-						ID:    uuid.New(),
 						Title: feedItem.Title,
 						Url:   feedItem.Link,
 						Description: sql.NullString{
@@ -97,9 +95,9 @@ func (cfg *apiConfig) continuousFeedFetcher() {
 						},
 						FeedID: feed.ID,
 					})
-					var pqErr *pq.Error
-					if err != nil && errors.As(err, &pqErr) && pqErr.Code.Name() != "unique_violation" {
-						log.Printf("Feed Fetcher could not get the post: %v - %v\n", pqErr.Code.Name(), pqErr.Message)
+					var sqlErr *sqlite3.Error
+					if err != nil && errors.As(err, &sqlErr) && !errors.Is(sqlErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
+						log.Printf("Feed Fetcher could not get the post: %v\n", err)
 					}
 				}
 			}()

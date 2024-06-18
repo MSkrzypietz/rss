@@ -7,41 +7,39 @@ package database
 import (
 	"database/sql"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Feed struct {
-	ID            uuid.UUID    `json:"id"`
+	ID            int64        `json:"id"`
 	CreatedAt     time.Time    `json:"created_at"`
 	UpdatedAt     time.Time    `json:"updated_at"`
 	Name          string       `json:"name"`
 	Url           string       `json:"url"`
-	UserID        uuid.UUID    `json:"user_id"`
+	UserID        int64        `json:"user_id"`
 	LastFetchedAt sql.NullTime `json:"last_fetched_at"`
 }
 
 type FeedFollow struct {
-	ID        uuid.UUID `json:"id"`
+	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	UserID    uuid.UUID `json:"user_id"`
-	FeedID    uuid.UUID `json:"feed_id"`
+	UserID    int64     `json:"user_id"`
+	FeedID    int64     `json:"feed_id"`
 }
 
 type Post struct {
-	ID          uuid.UUID      `json:"id"`
+	ID          interface{}    `json:"id"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	Title       string         `json:"title"`
 	Url         string         `json:"url"`
 	Description sql.NullString `json:"description"`
 	PublishedAt sql.NullTime   `json:"published_at"`
-	FeedID      uuid.UUID      `json:"feed_id"`
+	FeedID      int64          `json:"feed_id"`
 }
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
+	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Name      string    `json:"name"`

@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"github.com/MSkrzypietz/rss/internal/database"
-	"github.com/google/uuid"
 	"net/http"
+	"strconv"
 )
 
 func (cfg *apiConfig) getFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -19,7 +19,7 @@ func (cfg *apiConfig) getFeedFollows(w http.ResponseWriter, r *http.Request, use
 
 func (cfg *apiConfig) createFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
-		FeedID uuid.UUID `json:"feed_id"`
+		FeedID int64 `json:"feed_id"`
 	}
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
@@ -30,7 +30,6 @@ func (cfg *apiConfig) createFeedFollow(w http.ResponseWriter, r *http.Request, u
 	}
 
 	feed, err := cfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
-		ID:     uuid.New(),
 		UserID: user.ID,
 		FeedID: params.FeedID,
 	})
@@ -43,7 +42,7 @@ func (cfg *apiConfig) createFeedFollow(w http.ResponseWriter, r *http.Request, u
 }
 
 func (cfg *apiConfig) deleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
-	feedFollowID, err := uuid.Parse(r.PathValue("feedFollowID"))
+	feedFollowID, err := strconv.ParseInt(r.PathValue("feedFollowID"), 10, 64)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest)
 		return

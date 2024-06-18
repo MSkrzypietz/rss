@@ -2,12 +2,12 @@
 SELECT * from feeds;
 
 -- name: GetNextFeedsToFetch :many
-SELECT * FROM feeds ORDER BY last_fetched_at NULLS FIRST LIMIT $1;
+SELECT * FROM feeds ORDER BY last_fetched_at NULLS FIRST LIMIT ?;
 
 -- name: CreateFeed :one
-INSERT INTO feeds (id, name, url, user_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO feeds (name, url, user_id)
+VALUES (?, ?, ?)
     RETURNING *;
 
 -- name: MarkFeedFetched :exec
-UPDATE feeds SET last_fetched_at=Now(), updated_at=Now() WHERE id=$1;
+UPDATE feeds SET last_fetched_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP WHERE id=?;
