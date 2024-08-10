@@ -1,0 +1,15 @@
+package views
+
+import "github.com/MSkrzypietz/rss/views/components"
+
+templ Index(name string) {
+    <!DOCTYPE html>
+    <html lang="en">
+        @components.Header()
+        <body>
+            <main class="min-h-screen w-full">
+                <div>Hello, { name }</div>
+            </main>
+        </body>
+    </html>
+}

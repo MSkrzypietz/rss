@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/MSkrzypietz/rss/internal/database"
+	"github.com/MSkrzypietz/rss/views"
+	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	"log"
@@ -51,6 +53,8 @@ func main() {
 	go apiCfg.continuousFeedFetcher()
 
 	mux := http.NewServeMux()
+
+	mux.Handle("/", templ.Handler(views.Index("Michael")))
 
 	mux.HandleFunc("GET /v1/users", apiCfg.authenticate(apiCfg.getUsers))
 	mux.HandleFunc("POST /v1/users", apiCfg.createUser)
