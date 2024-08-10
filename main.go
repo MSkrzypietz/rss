@@ -18,7 +18,7 @@ type apiConfig struct {
 }
 
 func main() {
-	if os.Getenv("APP_ENV") != "production" {
+	if !isProductionEnv() {
 		if err := godotenv.Load(); err != nil {
 			log.Fatalln(err)
 		}
@@ -71,5 +71,23 @@ func main() {
 
 	server := http.Server{Addr: ":" + port, Handler: corsMux}
 	fmt.Printf("Serving on port: %s\n", port)
-	log.Fatal(server.ListenAndServe())
+	if isProductionEnv() {
+		certFile := os.Getenv("CERT_FILE_PATH")
+		if certFile == "" {
+			log.Fatalln("CERT_FILE_PATH is undefined")
+		}
+
+		keyFile := os.Getenv("KEY_FILE_PATH")
+		if keyFile == "" {
+			log.Fatalln("KEY_FILE_PATH is undefined")
+		}
+
+		log.Fatal(server.ListenAndServeTLS(certFile, keyFile))
+	} else {
+		log.Fatal(server.ListenAndServe())
+	}
+}
+
+func isProductionEnv() bool {
+	return os.Getenv("APP_ENV") == "production"
 }
