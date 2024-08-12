@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-func (cfg *apiConfig) getFeeds(w http.ResponseWriter, r *http.Request) {
-	feeds, err := cfg.DB.GetFeeds(r.Context())
+func (cfg *Config) getFeeds(w http.ResponseWriter, r *http.Request) {
+	feeds, err := cfg.db.GetFeeds(r.Context())
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError)
 		return
@@ -16,7 +16,7 @@ func (cfg *apiConfig) getFeeds(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, feeds)
 }
 
-func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user database.User) {
+func (cfg *Config) createFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		Name string `json:"name"`
 		Url  string `json:"url"`
@@ -30,7 +30,7 @@ func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user da
 	}
 
 	// TODO: Should probably add a transaction...
-	feed, err := cfg.DB.CreateFeed(r.Context(), database.CreateFeedParams{
+	feed, err := cfg.db.CreateFeed(r.Context(), database.CreateFeedParams{
 		Name:   params.Name,
 		Url:    params.Url,
 		UserID: user.ID,
@@ -40,7 +40,7 @@ func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user da
 		return
 	}
 
-	feedFollow, err := cfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+	feedFollow, err := cfg.db.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
 		UserID: user.ID,
 		FeedID: feed.ID,
 	})

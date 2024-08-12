@@ -1,6 +1,8 @@
-package main
+package api
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func getReadiness(w http.ResponseWriter, r *http.Request) {
 	type returnVals struct {

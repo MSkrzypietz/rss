@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/MSkrzypietz/rss/internal/database"
+	"github.com/MSkrzypietz/rss/api"
 	"github.com/MSkrzypietz/rss/views"
 	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
@@ -11,13 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
-
-type apiConfig struct {
-	DB         *database.Queries
-	httpClient *http.Client
-}
 
 func main() {
 	if !isProductionEnv() {
@@ -45,31 +39,15 @@ func main() {
 		log.Fatalf("Cannot ping database: %v", err)
 	}
 
-	apiCfg := apiConfig{
-		DB:         database.New(db),
-		httpClient: &http.Client{Timeout: 5 * time.Second},
-	}
+	apiCfg := api.NewConfig(db)
 
-	go apiCfg.continuousFeedFetcher()
+	go apiCfg.ContinuousFeedScraping()
 
 	mux := http.NewServeMux()
 
 	mux.Handle("/", templ.Handler(views.Index("Michael")))
 
-	mux.HandleFunc("GET /v1/users", apiCfg.authenticate(apiCfg.getUsers))
-	mux.HandleFunc("POST /v1/users", apiCfg.createUser)
-
-	mux.HandleFunc("GET /v1/feeds", apiCfg.getFeeds)
-	mux.HandleFunc("POST /v1/feeds", apiCfg.authenticate(apiCfg.createFeed))
-
-	mux.HandleFunc("GET /v1/feed_follows", apiCfg.authenticate(apiCfg.getFeedFollows))
-	mux.HandleFunc("POST /v1/feed_follows", apiCfg.authenticate(apiCfg.createFeedFollow))
-	mux.HandleFunc("DELETE /v1/feed_follows/{feedFollowID}", apiCfg.authenticate(apiCfg.deleteFeedFollow))
-
-	mux.HandleFunc("GET /v1/posts", apiCfg.authenticate(apiCfg.getPosts))
-
-	mux.HandleFunc("GET /v1/readiness", getReadiness)
-	mux.HandleFunc("GET /v1/err", getError)
+	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiCfg.Handlers()))
 
 	corsMux := middlewareCors(mux)
 

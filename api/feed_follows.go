@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-func (cfg *apiConfig) getFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
-	feedFollows, err := cfg.DB.GetFeedFollows(r.Context(), user.ID)
+func (cfg *Config) getFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedFollows, err := cfg.db.GetFeedFollows(r.Context(), user.ID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError)
 		return
@@ -17,7 +17,7 @@ func (cfg *apiConfig) getFeedFollows(w http.ResponseWriter, r *http.Request, use
 	respondWithJSON(w, http.StatusOK, feedFollows)
 }
 
-func (cfg *apiConfig) createFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+func (cfg *Config) createFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		FeedID int64 `json:"feed_id"`
 	}
@@ -29,7 +29,7 @@ func (cfg *apiConfig) createFeedFollow(w http.ResponseWriter, r *http.Request, u
 		return
 	}
 
-	feed, err := cfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+	feed, err := cfg.db.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
 		UserID: user.ID,
 		FeedID: params.FeedID,
 	})
@@ -41,14 +41,14 @@ func (cfg *apiConfig) createFeedFollow(w http.ResponseWriter, r *http.Request, u
 	respondWithJSON(w, http.StatusOK, feed)
 }
 
-func (cfg *apiConfig) deleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+func (cfg *Config) deleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFollowID, err := strconv.ParseInt(r.PathValue("feedFollowID"), 10, 64)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest)
 		return
 	}
 
-	err = cfg.DB.DeleteFeedFollow(r.Context(), database.DeleteFeedFollowParams{
+	err = cfg.db.DeleteFeedFollow(r.Context(), database.DeleteFeedFollowParams{
 		ID:     feedFollowID,
 		UserID: user.ID,
 	})

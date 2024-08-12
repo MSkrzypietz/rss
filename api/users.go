@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`
 	}
@@ -20,7 +20,7 @@ func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
+	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Name:      params.Name,
@@ -34,6 +34,6 @@ func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, user)
 }
 
-func (cfg *apiConfig) getUsers(w http.ResponseWriter, r *http.Request, user database.User) {
+func (cfg *Config) getUsers(w http.ResponseWriter, r *http.Request, user database.User) {
 	respondWithJSON(w, http.StatusOK, user)
 }

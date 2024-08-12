@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"context"
@@ -29,7 +29,7 @@ type FetchedFeed struct {
 	} `xml:"channel"`
 }
 
-func (cfg *apiConfig) fetchFeed(url string) (FetchedFeed, error) {
+func (cfg *Config) fetchFeed(url string) (FetchedFeed, error) {
 	var fetchedFeed FetchedFeed
 
 	resp, err := cfg.httpClient.Get(url)
@@ -47,10 +47,10 @@ func (cfg *apiConfig) fetchFeed(url string) (FetchedFeed, error) {
 	return fetchedFeed, nil
 }
 
-func (cfg *apiConfig) continuousFeedFetcher() {
+func (cfg *Config) ContinuousFeedScraping() {
 	ticker := time.NewTicker(fetchInterval)
 	for range ticker.C {
-		feedsToFetch, err := cfg.DB.GetNextFeedsToFetch(context.Background(), fetchLimit)
+		feedsToFetch, err := cfg.db.GetNextFeedsToFetch(context.Background(), fetchLimit)
 		if err != nil {
 			log.Printf("Feed Fetcher could not get the next feeds to fetch: %v\n", err)
 			continue
@@ -62,7 +62,7 @@ func (cfg *apiConfig) continuousFeedFetcher() {
 			go func() {
 				defer wg.Done()
 
-				err := cfg.DB.MarkFeedFetched(context.Background(), feed.ID)
+				err := cfg.db.MarkFeedFetched(context.Background(), feed.ID)
 				if err != nil {
 					log.Printf("Feed Fetcher could not mark the feed as fetched: %v\n", err)
 					return
@@ -82,7 +82,7 @@ func (cfg *apiConfig) continuousFeedFetcher() {
 						continue
 					}
 
-					_, err = cfg.DB.CreatePost(context.Background(), database.CreatePostParams{
+					_, err = cfg.db.CreatePost(context.Background(), database.CreatePostParams{
 						Title: feedItem.Title,
 						Url:   feedItem.Link,
 						Description: sql.NullString{

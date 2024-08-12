@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"github.com/MSkrzypietz/rss/internal/database"
@@ -7,8 +7,8 @@ import (
 
 const postGetterLimit = 10
 
-func (cfg *apiConfig) getPosts(w http.ResponseWriter, r *http.Request, user database.User) {
-	posts, err := cfg.DB.GetPostsForUser(r.Context(), database.GetPostsForUserParams{
+func (cfg *Config) getPosts(w http.ResponseWriter, r *http.Request, user database.User) {
+	posts, err := cfg.db.GetPostsForUser(r.Context(), database.GetPostsForUserParams{
 		UserID: user.ID,
 		Limit:  postGetterLimit,
 	})
