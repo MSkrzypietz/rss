@@ -7,7 +7,12 @@ import (
 )
 
 func (cfg *Config) GetLogin(w http.ResponseWriter, r *http.Request) {
-	views.Login().Render(r.Context(), w)
+	user, ok := cfg.getUserSession(r)
+	if !ok {
+		views.Login().Render(r.Context(), w)
+		return
+	}
+	cfg.GetPosts(w, r, user)
 }
 
 func (cfg *Config) PostLogin(w http.ResponseWriter, r *http.Request) {
