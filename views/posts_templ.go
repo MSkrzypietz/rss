@@ -84,7 +84,7 @@ func Posts(posts []database.Post) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(post.PublishedAt.Time.Format("01.02.2006 15:04:05"))
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(post.PublishedAt.Time.Format("02.01.2006 15:04:05"))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/posts.templ`, Line: 19, Col: 86}
 			}
