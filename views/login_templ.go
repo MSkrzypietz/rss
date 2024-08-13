@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/MSkrzypietz/rss/views/components"
 
-func Index(name string) templ.Component {
+func Login() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -36,20 +36,7 @@ func Index(name string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body><main class=\"min-h-screen w-full\"><div>Hello, ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(name)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/index.templ`, Line: 11, Col: 34}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><br><input type=\"text\" name=\"apiKey\" hx-post=\"/asdf\" hx-target=\"#response\" hx-swap=\"none\"> <button>Login</button><div id=\"response\"></div></main></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body><main class=\"min-h-screen w-full\"><form hx-post=\"/login\"><div class=\"flex items-center justify-center h-screen bg-background\"><div class=\"w-full max-w-md rounded-lg border bg-card text-card-foreground shadow-sm\"><div class=\"space-y-1 text-center flex flex-col space-y-1.5 p-6\"><div class=\"text-3xl font-bold leading-none tracking-tight\">Welcome Back</div><div class=\"text-sm text-muted-foreground\">Enter your API key to access your RSS feed.</div></div><div class=\"space-y-4 p-6 pt-0\"><div class=\"space-y-2\"><label for=\"apiKey\">API Key</label> <input id=\"apiKey\" name=\"apiKey\" type=\"text\" placeholder=\"Enter your API key\" class=\"w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950 rounded border h-10 px-4 py-2\"></div></div><div class=\"flex items-center p-6 pt-0\"><button type=\"submit\" class=\"w-full bg-stone-950 text-white rounded h-10 px-4 py-2\">Log In</button></div></div></div></form></main></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

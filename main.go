@@ -4,8 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/MSkrzypietz/rss/api"
-	"github.com/MSkrzypietz/rss/views"
-	"github.com/a-h/templ"
+	"github.com/MSkrzypietz/rss/render"
 	"github.com/joho/godotenv"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	"log"
@@ -39,14 +38,14 @@ func main() {
 		log.Fatalf("Cannot ping database: %v", err)
 	}
 
+	renderCfg := render.NewConfig(db)
 	apiCfg := api.NewConfig(db)
 
 	go apiCfg.ContinuousFeedScraping()
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/", templ.Handler(views.Index("Michael")))
-
+	mux.Handle("/", renderCfg.Handlers())
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiCfg.Handlers()))
 
 	corsMux := middlewareCors(mux)
