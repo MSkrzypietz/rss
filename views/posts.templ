@@ -3,6 +3,7 @@ package views
 import (
     "github.com/MSkrzypietz/rss/views/components"
 	"github.com/MSkrzypietz/rss/internal/database"
+	"strconv"
 )
 
 templ Posts(posts []database.Post) {
@@ -12,9 +13,19 @@ templ Posts(posts []database.Post) {
         <body>
             <main class="min-h-screen w-full">
                 for _, post := range posts {
-                    <a href={ templ.URL(post.Url) } target="_blank">
+                    {{ postID := strconv.Itoa(int(post.ID)) }}
+                    <a id={"card-" + postID} href={ templ.URL(post.Url) } target="_blank">
                         <div class="border p-6">
-                            <div class="text-2xl font-bold">{ post.Title }</div>
+                            <div class="flex">
+                                <div class="flex-grow text-2xl font-bold">{ post.Title }</div>
+                                <button
+                                    hx-post={"posts/" + postID + "/read"}
+                                    hx-target={"#card-" + postID}
+                                    hx-swap="outerHTML"
+                                    onclick="event.stopPropagation(); event.preventDefault()"
+                                    class="bg-stone-950 text-white rounded h-10 px-4 py-2 z-10"
+                                    >Read</button>
+                            </div>
                             <div>{ post.Description.String }</div>
                             <div>{ post.PublishedAt.Time.Format("02.01.2006 15:04:05") }</div>
                         </div>

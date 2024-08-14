@@ -8,7 +8,7 @@ import (
 const postGetterLimit = 10
 
 func (cfg *Config) getPosts(w http.ResponseWriter, r *http.Request, user database.User) {
-	posts, err := cfg.db.GetPostsForUser(r.Context(), database.GetPostsForUserParams{
+	posts, err := cfg.db.GetUnreadPostsForUser(r.Context(), database.GetUnreadPostsForUserParams{
 		UserID: user.ID,
 		Limit:  postGetterLimit,
 	})

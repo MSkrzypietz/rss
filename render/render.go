@@ -29,6 +29,7 @@ func (cfg *Config) Handlers() http.Handler {
 	mux.HandleFunc("POST /login", cfg.PostLogin)
 
 	mux.HandleFunc("GET /posts", cfg.authenticate(cfg.GetPosts))
+	mux.HandleFunc("POST /posts/{id}/read", cfg.authenticate(cfg.MarkPostAsRead))
 
 	mux.HandleFunc("GET /error", getError)
 
