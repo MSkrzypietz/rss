@@ -4,12 +4,18 @@ import "github.com/MSkrzypietz/rss/views/components"
 
 type EditPageState struct {
     ActivePage components.ActivePage
+    FeedSelectInputConfig components.SelectInputConfig
 }
 
-templ edit() {
-    <div>Not implemented</div>
+templ autoReadFilterSection(state EditPageState) {
+    <div>Add auto read filters</div>
+    @components.SelectInput(state.FeedSelectInputConfig)
+}
+
+templ edit(state EditPageState) {
+    @autoReadFilterSection(state)
 }
 
 templ EditPage(state EditPageState) {
-    @components.Layout(edit(), state.ActivePage)
+    @components.Layout(edit(state), state.ActivePage)
 }

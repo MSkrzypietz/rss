@@ -13,7 +13,7 @@ func (cfg *Config) authenticate(handler authedHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, ok := cfg.getUserSession(r)
 		if !ok {
-			views.Error("Unauthorized").Render(r.Context(), w)
+			views.Login().Render(r.Context(), w)
 			return
 		}
 

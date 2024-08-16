@@ -1,0 +1,23 @@
+package components
+
+type SelectInputItem struct {
+    ID string
+    Name string
+}
+
+type SelectInputConfig struct {
+    ID string
+    Name string
+    Prompt string
+    Items []SelectInputItem
+}
+
+templ SelectInput(state SelectInputConfig) {
+    <select id={ state.ID } class="w-20 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <option selected>{ state.Prompt }</option>
+        for _, item := range state.Items {
+            <option value={ item.ID }>{ item.Name }</option>
+        }
+    </select>
+}
+
