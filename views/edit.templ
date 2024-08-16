@@ -1,0 +1,15 @@
+package views
+
+import "github.com/MSkrzypietz/rss/views/components"
+
+type EditPageState struct {
+    ActivePage components.ActivePage
+}
+
+templ edit() {
+    <div>Not implemented</div>
+}
+
+templ EditPage(state EditPageState) {
+    @components.Layout(edit(), state.ActivePage)
+}

@@ -6,13 +6,13 @@ import (
 	"net/http"
 )
 
-func (cfg *Config) GetLogin(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) IndexPage(w http.ResponseWriter, r *http.Request) {
 	user, ok := cfg.getUserSession(r)
 	if !ok {
 		views.Login().Render(r.Context(), w)
 		return
 	}
-	cfg.GetPosts(w, r, user)
+	cfg.FeedPage(w, r, user)
 }
 
 func (cfg *Config) PostLogin(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +23,7 @@ func (cfg *Config) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("HX-Redirect", "/posts")
+	w.Header().Set("HX-Redirect", "/feed")
 
 	sessionID := session.ID(r)
 	cfg.mu.Lock()

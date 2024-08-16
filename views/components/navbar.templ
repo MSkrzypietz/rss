@@ -1,0 +1,88 @@
+package components
+
+
+type ActivePage struct {
+    IsFeedActive bool
+    IsEditActive bool
+}
+
+templ pageLink(path, text, classNames string, isActive bool) {
+     if isActive {
+         <a href={ templ.URL(path) } class={ "rounded-md bg-gray-900 px-3 py-2 font-medium text-white", classNames }>{ text }</a>
+     } else {
+         <a href={ templ.URL(path) } class={ "rounded-md px-3 py-2 font-medium text-gray-300 hover:bg-gray-700 hover:text-white", classNames }>{ text }</a>
+     }
+}
+
+templ desktopPageLink(path, text string, isActive bool) {
+    @pageLink(path, text, "text-sm", isActive)
+}
+
+templ mobilePageLink(path, text string, isActive bool) {
+    @pageLink(path, text, "text-base block", isActive)
+}
+
+templ Navbar(activePage ActivePage) {
+    <nav class="bg-gray-800">
+      <div class="px-3 sm:px-0">
+        <div class="relative flex h-16 items-center justify-between">
+          <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+            <button id="mobile-menu-btn" type="button" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+              <span class="absolute -inset-0.5"></span>
+              <svg id="mobile-menu-btn-closed" class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+              <svg id="mobile-menu-btn-open" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+            <div class="hidden sm:ml-6 sm:block">
+              <div class="flex space-x-4">
+                @desktopPageLink("/feed", "Feed", activePage.IsFeedActive)
+                @desktopPageLink("/edit", "Edit", activePage.IsEditActive)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sm:hidden hidden" id="mobile-menu-list">
+        <div class="space-y-1 px-2 pb-3 pt-2">
+          @mobilePageLink("/feed", "Feed", activePage.IsFeedActive)
+          @mobilePageLink("/edit", "Edit", activePage.IsEditActive)
+        </div>
+      </div>
+
+      <script>
+        let isMobileMenuOpen = false;
+        const mobileMenuListEl = document.getElementById("mobile-menu-list");
+        const mobileMenuBtnOpenEl = document.getElementById("mobile-menu-btn-open");
+        const mobileMenuBtnClosedEl = document.getElementById("mobile-menu-btn-closed");
+
+        document.getElementById("mobile-menu-btn").addEventListener("click", function() {
+            isMobileMenuOpen = !isMobileMenuOpen;
+            if (isMobileMenuOpen) {
+                showElement(mobileMenuListEl);
+                showElement(mobileMenuBtnOpenEl);
+                hideElement(mobileMenuBtnClosedEl);
+            } else {
+                hideElement(mobileMenuListEl);
+                hideElement(mobileMenuBtnOpenEl);
+                showElement(mobileMenuBtnClosedEl);
+            }
+         });
+
+         function showElement(el) {
+            el.classList.remove("hidden");
+            el.classList.add("block");
+         }
+
+         function hideElement(el) {
+            el.classList.remove("block");
+            el.classList.add("hidden");
+         }
+      </script>
+    </nav>
+}

@@ -1,0 +1,14 @@
+package components
+
+templ Layout(contents templ.Component, activePage ActivePage) {
+    <!DOCTYPE html>
+    <html lang="en">
+        @Header()
+        <body>
+            @Navbar(activePage)
+            <main class="min-h-screen w-full">
+                @contents
+            </main>
+        </body>
+    </html>
+}

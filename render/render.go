@@ -25,11 +25,13 @@ func NewConfig(db *sql.DB) *Config {
 func (cfg *Config) Handlers() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /", cfg.GetLogin)
+	mux.HandleFunc("GET /", cfg.IndexPage)
 	mux.HandleFunc("POST /login", cfg.PostLogin)
 
-	mux.HandleFunc("GET /posts", cfg.authenticate(cfg.GetPosts))
+	mux.HandleFunc("GET /feed", cfg.authenticate(cfg.FeedPage))
 	mux.HandleFunc("POST /posts/{id}/read", cfg.authenticate(cfg.MarkPostAsRead))
+
+	mux.HandleFunc("GET /edit", cfg.authenticate(cfg.EditPage))
 
 	mux.HandleFunc("GET /error", getError)
 
