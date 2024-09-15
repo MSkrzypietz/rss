@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const fetchInterval = 60 * time.Minute
+const fetchInterval = 3 * time.Hour
 const fetchLimit = 2
 
 type FetchedFeed struct {
