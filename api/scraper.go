@@ -4,9 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/xml"
-	"errors"
 	"github.com/MSkrzypietz/rss/internal/database"
-	"github.com/mattn/go-sqlite3"
 	"log"
 	"sync"
 	"time"
@@ -95,8 +93,7 @@ func (cfg *Config) ContinuousFeedScraping() {
 						},
 						FeedID: feed.ID,
 					})
-					var sqlErr *sqlite3.Error
-					if err != nil && errors.As(err, &sqlErr) && !errors.Is(sqlErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
+					if err != nil {
 						log.Printf("Feed Fetcher could not get the post: %v\n", err)
 					}
 				}

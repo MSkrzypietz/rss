@@ -1,11 +1,9 @@
 package render
 
 import (
-	"errors"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/MSkrzypietz/rss/views"
 	"github.com/MSkrzypietz/rss/views/components"
-	"github.com/mattn/go-sqlite3"
 	"net/http"
 	"strconv"
 )
@@ -44,8 +42,7 @@ func (cfg *Config) MarkPostAsRead(w http.ResponseWriter, r *http.Request, user d
 		UserID: user.ID,
 		PostID: int64(postID),
 	})
-	var sqlErr *sqlite3.Error
-	if err != nil && errors.As(err, &sqlErr) && !errors.Is(err, sqlite3.ErrConstraintUnique) {
+	if err != nil {
 		views.Error("Internal server error").Render(r.Context(), w)
 		return
 	}

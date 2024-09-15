@@ -8,4 +8,5 @@ SELECT p.* FROM posts p
 -- name: CreatePost :one
 INSERT INTO posts (title, url, description, published_at, feed_id)
     VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(url) DO UPDATE SET url=posts.url
     RETURNING *;
