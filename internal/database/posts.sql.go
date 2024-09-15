@@ -13,6 +13,7 @@ import (
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts (title, url, description, published_at, feed_id)
     VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(url) DO UPDATE SET url=posts.url
     RETURNING id, created_at, updated_at, title, url, description, published_at, feed_id
 `
 
