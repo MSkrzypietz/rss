@@ -8,9 +8,9 @@ type ActivePage struct {
 
 templ pageLink(path, text, classNames string, isActive bool) {
      if isActive {
-         <a href={ templ.URL(path) } class={ "rounded-md bg-gray-900 px-3 py-2 font-medium text-white", classNames }>{ text }</a>
+         <a href={ templ.URL(path) } class={ "rounded-md px-3 py-2 font-medium", classNames }>{ text }</a>
      } else {
-         <a href={ templ.URL(path) } class={ "rounded-md px-3 py-2 font-medium text-gray-300 hover:bg-gray-700 hover:text-white", classNames }>{ text }</a>
+         <a href={ templ.URL(path) } class={ "rounded-md px-3 py-2 font-medium text-gray-300 hover:text-white", classNames }>{ text }</a>
      }
 }
 
@@ -23,7 +23,7 @@ templ mobilePageLink(path, text string, isActive bool) {
 }
 
 templ Navbar(activePage ActivePage) {
-    <nav class="bg-gray-800">
+    <nav class="bg-[#383838]">
       <div class="px-3 sm:px-0">
         <div class="relative flex h-16 items-center justify-between">
           <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
