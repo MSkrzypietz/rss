@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createPost = `-- name: CreatePost :one
@@ -48,10 +49,11 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 }
 
 const getUnreadPostsForUser = `-- name: GetUnreadPostsForUser :many
-SELECT p.id, p.created_at, p.updated_at, p.title, p.url, p.description, p.published_at, p.feed_id FROM posts p
-    INNER JOIN feed_follows f ON f.feed_id=p.feed_id
-    LEFT JOIN post_reads pr ON pr.user_id=f.user_id AND pr.post_id=p.id
-    WHERE f.user_id=? AND pr.id IS NULL
+SELECT p.id, p.created_at, p.updated_at, p.title, p.url, p.description, p.published_at, p.feed_id, f.name as feed_name FROM posts p
+    INNER JOIN feed_follows ff ON ff.feed_id=p.feed_id
+    INNER JOIN feeds f ON f.id=p.feed_id
+    LEFT JOIN post_reads pr ON pr.user_id=ff.user_id AND pr.post_id=p.id
+    WHERE ff.user_id=? AND pr.id IS NULL
     ORDER BY p.published_at DESC LIMIT ?
 `
 
@@ -60,15 +62,27 @@ type GetUnreadPostsForUserParams struct {
 	Limit  int64 `json:"limit"`
 }
 
-func (q *Queries) GetUnreadPostsForUser(ctx context.Context, arg GetUnreadPostsForUserParams) ([]Post, error) {
+type GetUnreadPostsForUserRow struct {
+	ID          int64          `json:"id"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	Title       string         `json:"title"`
+	Url         string         `json:"url"`
+	Description sql.NullString `json:"description"`
+	PublishedAt sql.NullTime   `json:"published_at"`
+	FeedID      int64          `json:"feed_id"`
+	FeedName    string         `json:"feed_name"`
+}
+
+func (q *Queries) GetUnreadPostsForUser(ctx context.Context, arg GetUnreadPostsForUserParams) ([]GetUnreadPostsForUserRow, error) {
 	rows, err := q.db.QueryContext(ctx, getUnreadPostsForUser, arg.UserID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Post
+	var items []GetUnreadPostsForUserRow
 	for rows.Next() {
-		var i Post
+		var i GetUnreadPostsForUserRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedAt,
@@ -78,6 +92,7 @@ func (q *Queries) GetUnreadPostsForUser(ctx context.Context, arg GetUnreadPostsF
 			&i.Description,
 			&i.PublishedAt,
 			&i.FeedID,
+			&i.FeedName,
 		); err != nil {
 			return nil, err
 		}
