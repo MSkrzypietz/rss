@@ -14,7 +14,7 @@ RUN go mod download
 
 COPY . .
 
-RUN GOOS=$GOOS GOARCH=$GOARCH go build -o /rss
+RUN CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-s -w" -o /rss
 
 EXPOSE 8080
 EXPOSE 8081
