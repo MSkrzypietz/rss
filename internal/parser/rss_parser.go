@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"html"
 	"log"
-	"time"
 )
 
 type rssFeed struct {
@@ -31,7 +30,7 @@ func parseRssFeed(b []byte) (Feed, error) {
 
 	var items []Item
 	for _, item := range feed.Channel.Items {
-		publishedAt, err := parseRssPublishDate(item.PublishedAt)
+		publishedAt, err := parsePublishDate(item.PublishedAt)
 		if err != nil {
 			log.Printf("Rss parser could not parse the published date %v: %v\n", item.PublishedAt, err)
 			continue
@@ -49,11 +48,4 @@ func parseRssFeed(b []byte) (Feed, error) {
 		Title: html.UnescapeString(feed.Channel.Title),
 		Items: items,
 	}, nil
-}
-
-func parseRssPublishDate(date *string) (time.Time, error) {
-	if date == nil {
-		return time.Now(), nil
-	}
-	return time.Parse(time.RFC1123, *date)
 }

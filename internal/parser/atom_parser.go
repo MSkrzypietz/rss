@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"html"
 	"log"
-	"time"
 )
 
 type atomFeed struct {
@@ -31,7 +30,7 @@ func parseAtomFeed(b []byte) (Feed, error) {
 
 	var items []Item
 	for _, entry := range feed.Entries {
-		publishedAt, err := parseAtomPublishDate(entry.PublishedAt)
+		publishedAt, err := parsePublishDate(entry.PublishedAt)
 		if err != nil {
 			log.Printf("Atom parser could not parse the published date %v: %v\n", entry.PublishedAt, err)
 			continue
@@ -49,11 +48,4 @@ func parseAtomFeed(b []byte) (Feed, error) {
 		Title: html.UnescapeString(feed.Title),
 		Items: items,
 	}, nil
-}
-
-func parseAtomPublishDate(date *string) (time.Time, error) {
-	if date == nil {
-		return time.Now(), nil
-	}
-	return time.Parse(time.RFC3339, *date)
 }
