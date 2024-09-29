@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 	"database/sql"
-	"encoding/xml"
 	"github.com/MSkrzypietz/rss/internal/database"
+	"github.com/MSkrzypietz/rss/internal/parser"
 	"log"
 	"sync"
 	"time"
@@ -13,36 +13,20 @@ import (
 const fetchInterval = 3 * time.Hour
 const fetchLimit = 2
 
-type FetchedFeed struct {
-	Channel struct {
-		Title       string `xml:"title"`
-		Link        string `xml:"link"`
-		Description string `xml:"description"`
-		Items       []struct {
-			Title       string `xml:"title"`
-			Link        string `xml:"link"`
-			Description string `xml:"description"`
-			PublishedAt string `xml:"pubDate"`
-		} `xml:"item"`
-	} `xml:"channel"`
-}
-
-func (cfg *Config) fetchFeed(url string) (FetchedFeed, error) {
-	var fetchedFeed FetchedFeed
+func (cfg *Config) fetchFeed(url string) (parser.Feed, error) {
+	var feed parser.Feed
 
 	resp, err := cfg.httpClient.Get(url)
 	if err != nil {
-		return fetchedFeed, err
+		return feed, err
 	}
 	defer resp.Body.Close()
 
-	decoder := xml.NewDecoder(resp.Body)
-	err = decoder.Decode(&fetchedFeed)
+	feed, err = parser.NewParser().Parse(resp.Body)
 	if err != nil {
-		return fetchedFeed, err
+		return feed, err
 	}
-
-	return fetchedFeed, nil
+	return feed, nil
 }
 
 func (cfg *Config) ContinuousFeedScraping() {
@@ -72,14 +56,8 @@ func (cfg *Config) ContinuousFeedScraping() {
 					return
 				}
 
-				log.Printf("Fetched feed %v: %v\n", feed.Url, fetchedFeed.Channel.Title)
-				for _, feedItem := range fetchedFeed.Channel.Items {
-					publishedAt, err := time.Parse(time.RFC1123, feedItem.PublishedAt)
-					if err != nil {
-						log.Printf("Feed Fetcher could not parse the published date %v: %v\n", feedItem.PublishedAt, err)
-						continue
-					}
-
+				log.Printf("Fetched feed: %v\n", feed.Url)
+				for _, feedItem := range fetchedFeed.Items {
 					_, err = cfg.db.CreatePost(context.Background(), database.CreatePostParams{
 						Title: feedItem.Title,
 						Url:   feedItem.Link,
@@ -88,7 +66,7 @@ func (cfg *Config) ContinuousFeedScraping() {
 							Valid:  true,
 						},
 						PublishedAt: sql.NullTime{
-							Time:  publishedAt,
+							Time:  feedItem.PublishedAt,
 							Valid: true,
 						},
 						FeedID: feed.ID,
