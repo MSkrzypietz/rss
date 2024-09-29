@@ -14,8 +14,8 @@ type atomFeed struct {
 		Link  struct {
 			Href string `xml:"href,attr"`
 		} `xml:"link"`
-		Summary     string `xml:"summary"`
-		PublishedAt string `xml:"published"`
+		Summary     string  `xml:"summary"`
+		PublishedAt *string `xml:"published"`
 	} `xml:"entry"`
 }
 
@@ -30,7 +30,7 @@ func parseAtomFeed(b []byte) (Feed, error) {
 
 	var items []Item
 	for _, entry := range feed.Entries {
-		publishedAt, err := time.Parse(time.RFC3339, entry.PublishedAt)
+		publishedAt, err := parseAtomPublishDate(entry.PublishedAt)
 		if err != nil {
 			log.Printf("Atom parser could not parse the published date %v: %v\n", entry.PublishedAt, err)
 			continue
@@ -48,4 +48,11 @@ func parseAtomFeed(b []byte) (Feed, error) {
 		Title: feed.Title,
 		Items: items,
 	}, nil
+}
+
+func parseAtomPublishDate(date *string) (time.Time, error) {
+	if date == nil {
+		return time.Now(), nil
+	}
+	return time.Parse(time.RFC3339, *date)
 }
