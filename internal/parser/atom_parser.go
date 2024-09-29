@@ -3,6 +3,7 @@ package parser
 import (
 	"bytes"
 	"encoding/xml"
+	"html"
 	"log"
 	"time"
 )
@@ -37,15 +38,15 @@ func parseAtomFeed(b []byte) (Feed, error) {
 		}
 
 		items = append(items, Item{
-			Title:       entry.Title,
+			Title:       html.UnescapeString(entry.Title),
 			Link:        entry.Link.Href,
-			Description: entry.Summary,
+			Description: html.UnescapeString(entry.Summary),
 			PublishedAt: publishedAt,
 		})
 	}
 
 	return Feed{
-		Title: feed.Title,
+		Title: html.UnescapeString(feed.Title),
 		Items: items,
 	}, nil
 }

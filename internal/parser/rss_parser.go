@@ -3,6 +3,7 @@ package parser
 import (
 	"bytes"
 	"encoding/xml"
+	"html"
 	"log"
 	"time"
 )
@@ -37,15 +38,15 @@ func parseRssFeed(b []byte) (Feed, error) {
 		}
 
 		items = append(items, Item{
-			Title:       item.Title,
+			Title:       html.UnescapeString(item.Title),
 			Link:        item.Link,
-			Description: item.Description,
+			Description: html.UnescapeString(item.Description),
 			PublishedAt: publishedAt,
 		})
 	}
 
 	return Feed{
-		Title: feed.Channel.Title,
+		Title: html.UnescapeString(feed.Channel.Title),
 		Items: items,
 	}, nil
 }
