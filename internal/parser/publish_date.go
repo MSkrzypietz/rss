@@ -6,7 +6,8 @@ var layouts = []string{
 	time.RFC1123,
 	time.RFC1123Z,
 	time.RFC3339,
-	"02 Jan 2006 15:04:05 -0700",
+	"2 Jan 2006 15:04:05 -0700",
+	"Mon, 2 Jan 2006 15:04:05 -0700",
 }
 
 func parsePublishDate(date *string) (time.Time, error) {
