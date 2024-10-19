@@ -32,6 +32,10 @@ func (cfg *Config) Handlers() http.Handler {
 	mux.HandleFunc("POST /feed_follows", cfg.authenticate(cfg.createFeedFollow))
 	mux.HandleFunc("DELETE /feed_follows/{feedFollowID}", cfg.authenticate(cfg.deleteFeedFollow))
 
+	mux.HandleFunc("GET /feed_filters", cfg.authenticate(cfg.getFeedFilters))
+	mux.HandleFunc("POST /feed_filters", cfg.authenticate(cfg.createFeedFilter))
+	mux.HandleFunc("DELETE /feed_filters/{feedFilterID}", cfg.authenticate(cfg.deleteFeedFilter))
+
 	mux.HandleFunc("GET /posts", cfg.authenticate(cfg.getPosts))
 
 	mux.HandleFunc("GET /readiness", getReadiness)

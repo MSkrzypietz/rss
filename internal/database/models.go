@@ -19,6 +19,16 @@ type Feed struct {
 	LastFetchedAt sql.NullTime `json:"last_fetched_at"`
 }
 
+type FeedFilter struct {
+	ID         int64        `json:"id"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
+	FilterText string       `json:"filter_text"`
+	Active     sql.NullBool `json:"active"`
+	UserID     int64        `json:"user_id"`
+	FeedID     int64        `json:"feed_id"`
+}
+
 type FeedFollow struct {
 	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"created_at"`

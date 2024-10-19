@@ -6,6 +6,7 @@ import (
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/MSkrzypietz/rss/internal/parser"
 	"log"
+	"strings"
 	"sync"
 	"time"
 )
@@ -57,8 +58,9 @@ func (cfg *Config) ContinuousFeedScraping() {
 				}
 
 				log.Printf("Fetched feed: %v\n", feed.Url)
+				var newPosts []database.Post
 				for _, feedItem := range fetchedFeed.Items {
-					_, err = cfg.db.CreatePost(context.Background(), database.CreatePostParams{
+					post, err := cfg.db.CreatePost(context.Background(), database.CreatePostParams{
 						Title: feedItem.Title,
 						Url:   feedItem.Link,
 						Description: sql.NullString{
@@ -72,11 +74,42 @@ func (cfg *Config) ContinuousFeedScraping() {
 						FeedID: feed.ID,
 					})
 					if err != nil {
-						log.Printf("Feed Fetcher could not get the post: %v\n", err)
+						log.Printf("Feed Fetcher could not create the post: %v\n", err)
+					} else {
+						newPosts = append(newPosts, post)
 					}
+				}
+
+				if err = cfg.applyFeedFilters(feed.ID, newPosts); err != nil {
+					log.Printf("Feed Fetcher could not apply the feed filters: %v\n", err)
 				}
 			}()
 		}
 		wg.Wait()
 	}
+}
+
+func (cfg *Config) applyFeedFilters(feedID int64, newPosts []database.Post) error {
+	feedFilters, err := cfg.db.GetFeedFilters(context.Background(), feedID)
+	if err != nil {
+		return err
+	}
+
+	for _, feedFilter := range feedFilters {
+		filterText := strings.ToLower(feedFilter.FilterText)
+		for _, post := range newPosts {
+			title := strings.ToLower(post.Title)
+			if strings.Contains(title, filterText) {
+				_, err = cfg.db.CreatePostRead(context.Background(), database.CreatePostReadParams{
+					UserID: feedFilter.UserID,
+					PostID: post.ID,
+				})
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }
