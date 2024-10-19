@@ -10,56 +10,56 @@ import (
 )
 
 type Feed struct {
-	ID            int64        `json:"id"`
-	CreatedAt     time.Time    `json:"created_at"`
-	UpdatedAt     time.Time    `json:"updated_at"`
-	Name          string       `json:"name"`
-	Url           string       `json:"url"`
-	UserID        int64        `json:"user_id"`
-	LastFetchedAt sql.NullTime `json:"last_fetched_at"`
+	ID            int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	Name          string
+	Url           string
+	UserID        int64
+	LastFetchedAt sql.NullTime
 }
 
 type FeedFilter struct {
-	ID         int64        `json:"id"`
-	CreatedAt  time.Time    `json:"created_at"`
-	UpdatedAt  time.Time    `json:"updated_at"`
-	FilterText string       `json:"filter_text"`
-	Active     sql.NullBool `json:"active"`
-	UserID     int64        `json:"user_id"`
-	FeedID     int64        `json:"feed_id"`
+	ID         int64
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	FilterText string
+	Active     bool
+	UserID     int64
+	FeedID     int64
 }
 
 type FeedFollow struct {
-	ID        int64     `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	UserID    int64     `json:"user_id"`
-	FeedID    int64     `json:"feed_id"`
+	ID        int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    int64
+	FeedID    int64
 }
 
 type Post struct {
-	ID          int64          `json:"id"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	Title       string         `json:"title"`
-	Url         string         `json:"url"`
-	Description sql.NullString `json:"description"`
-	PublishedAt sql.NullTime   `json:"published_at"`
-	FeedID      int64          `json:"feed_id"`
+	ID          int64
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Title       string
+	Url         string
+	Description sql.NullString
+	PublishedAt sql.NullTime
+	FeedID      int64
 }
 
 type PostRead struct {
-	ID        int64     `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	UserID    int64     `json:"user_id"`
-	PostID    int64     `json:"post_id"`
+	ID        int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    int64
+	PostID    int64
 }
 
 type User struct {
-	ID        int64     `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Name      string    `json:"name"`
-	Apikey    string    `json:"apikey"`
+	ID        int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Name      string
+	Apikey    string
 }

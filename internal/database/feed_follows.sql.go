@@ -16,8 +16,8 @@ VALUES (?, ?)
 `
 
 type CreateFeedFollowParams struct {
-	UserID int64 `json:"user_id"`
-	FeedID int64 `json:"feed_id"`
+	UserID int64
+	FeedID int64
 }
 
 func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowParams) (FeedFollow, error) {
@@ -38,8 +38,8 @@ DELETE FROM feed_follows WHERE id=? and user_id=?
 `
 
 type DeleteFeedFollowParams struct {
-	ID     int64 `json:"id"`
-	UserID int64 `json:"user_id"`
+	ID     int64
+	UserID int64
 }
 
 func (q *Queries) DeleteFeedFollow(ctx context.Context, arg DeleteFeedFollowParams) error {

@@ -16,9 +16,9 @@ VALUES (?, ?, ?)
 `
 
 type CreateFeedFilterParams struct {
-	UserID     int64  `json:"user_id"`
-	FeedID     int64  `json:"feed_id"`
-	FilterText string `json:"filter_text"`
+	UserID     int64
+	FeedID     int64
+	FilterText string
 }
 
 func (q *Queries) CreateFeedFilter(ctx context.Context, arg CreateFeedFilterParams) (FeedFilter, error) {

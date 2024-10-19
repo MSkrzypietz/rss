@@ -22,7 +22,7 @@ func NewConfig(db *sql.DB) *Config {
 func (cfg *Config) Handlers() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /users", cfg.authenticate(cfg.getUsers))
+	mux.HandleFunc("GET /users", cfg.authenticate(cfg.getAuthenticatedUser))
 	mux.HandleFunc("POST /users", cfg.createUser)
 
 	mux.HandleFunc("GET /feeds", cfg.getFeeds)
@@ -36,7 +36,7 @@ func (cfg *Config) Handlers() http.Handler {
 	mux.HandleFunc("POST /feed_filters", cfg.authenticate(cfg.createFeedFilter))
 	mux.HandleFunc("DELETE /feed_filters/{feedFilterID}", cfg.authenticate(cfg.deleteFeedFilter))
 
-	mux.HandleFunc("GET /posts", cfg.authenticate(cfg.getPosts))
+	mux.HandleFunc("GET /posts", cfg.authenticate(cfg.getUnreadPosts))
 
 	mux.HandleFunc("GET /readiness", getReadiness)
 	mux.HandleFunc("GET /err", getError)

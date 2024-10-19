@@ -4,11 +4,12 @@ import (
 	"net/http"
 )
 
+type ReadinessResponse struct {
+	Status string `json:"status"`
+}
+
 func getReadiness(w http.ResponseWriter, r *http.Request) {
-	type returnVals struct {
-		Status string `json:"status"`
-	}
-	respondWithJSON(w, http.StatusOK, returnVals{Status: "ok"})
+	respondWithJSON(w, http.StatusOK, ReadinessResponse{Status: "ok"})
 }
 
 func getError(w http.ResponseWriter, r *http.Request) {

@@ -5,7 +5,38 @@ import (
 	"github.com/MSkrzypietz/rss/internal/database"
 	"net/http"
 	"strconv"
+	"time"
 )
+
+type GetFeedFilterResponse struct {
+	ID         int64     `json:"id"`
+	UserID     int64     `json:"user_id"`
+	FeedID     int64     `json:"feed_id"`
+	FilterText string    `json:"filter_text"`
+	Active     bool      `json:"active"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+func mapGetFeedFilterResponses(dbFeedFilters []database.FeedFilter) []GetFeedFilterResponse {
+	var responses []GetFeedFilterResponse
+	for _, dbFeedFilter := range dbFeedFilters {
+		responses = append(responses, mapGetFeedFilterResponse(dbFeedFilter))
+	}
+	return responses
+}
+
+func mapGetFeedFilterResponse(dbFeedFilter database.FeedFilter) GetFeedFilterResponse {
+	return GetFeedFilterResponse{
+		ID:         dbFeedFilter.ID,
+		UserID:     dbFeedFilter.UserID,
+		FeedID:     dbFeedFilter.FeedID,
+		FilterText: dbFeedFilter.FilterText,
+		Active:     dbFeedFilter.Active,
+		CreatedAt:  dbFeedFilter.CreatedAt,
+		UpdatedAt:  dbFeedFilter.UpdatedAt,
+	}
+}
 
 func (cfg *Config) getFeedFilters(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFilters, err := cfg.db.GetUserFeedFilters(r.Context(), user.ID)
@@ -13,7 +44,7 @@ func (cfg *Config) getFeedFilters(w http.ResponseWriter, r *http.Request, user d
 		respondWithError(w, http.StatusInternalServerError)
 		return
 	}
-	respondWithJSON(w, http.StatusOK, feedFilters)
+	respondWithJSON(w, http.StatusOK, mapGetFeedFilterResponses(feedFilters))
 }
 
 func (cfg *Config) createFeedFilter(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -29,7 +60,7 @@ func (cfg *Config) createFeedFilter(w http.ResponseWriter, r *http.Request, user
 		return
 	}
 
-	feed, err := cfg.db.CreateFeedFilter(r.Context(), database.CreateFeedFilterParams{
+	feedFilter, err := cfg.db.CreateFeedFilter(r.Context(), database.CreateFeedFilterParams{
 		UserID:     user.ID,
 		FeedID:     params.FeedID,
 		FilterText: params.FilterText,
@@ -39,7 +70,7 @@ func (cfg *Config) createFeedFilter(w http.ResponseWriter, r *http.Request, user
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, feed)
+	respondWithJSON(w, http.StatusOK, mapGetFeedFilterResponse(feedFilter))
 }
 
 func (cfg *Config) deleteFeedFilter(w http.ResponseWriter, r *http.Request, user database.User) {

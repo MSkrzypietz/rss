@@ -8,6 +8,28 @@ import (
 	"time"
 )
 
+type GetUserResponse struct {
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	ApiKey    string    `json:"api_key"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func mapGetUserResponse(dbUser database.User) GetUserResponse {
+	return GetUserResponse{
+		ID:        dbUser.ID,
+		Name:      dbUser.Name,
+		ApiKey:    dbUser.Apikey,
+		CreatedAt: dbUser.CreatedAt,
+		UpdatedAt: dbUser.UpdatedAt,
+	}
+}
+
+func (cfg *Config) getAuthenticatedUser(w http.ResponseWriter, r *http.Request, user database.User) {
+	respondWithJSON(w, http.StatusOK, mapGetUserResponse(user))
+}
+
 func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`
@@ -31,9 +53,5 @@ func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, user)
-}
-
-func (cfg *Config) getUsers(w http.ResponseWriter, r *http.Request, user database.User) {
-	respondWithJSON(w, http.StatusOK, user)
+	respondWithJSON(w, http.StatusOK, mapGetUserResponse(user))
 }

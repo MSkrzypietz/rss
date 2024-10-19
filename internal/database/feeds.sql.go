@@ -16,9 +16,9 @@ VALUES (?, ?, ?)
 `
 
 type CreateFeedParams struct {
-	Name   string `json:"name"`
-	Url    string `json:"url"`
-	UserID int64  `json:"user_id"`
+	Name   string
+	Url    string
+	UserID int64
 }
 
 func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, error) {

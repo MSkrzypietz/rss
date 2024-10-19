@@ -17,10 +17,10 @@ VALUES (?, ?, ?, ?)
 `
 
 type CreateUserParams struct {
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Name      string    `json:"name"`
-	Apikey    string    `json:"apikey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Name      string
+	Apikey    string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {

@@ -19,11 +19,11 @@ INSERT INTO posts (title, url, description, published_at, feed_id)
 `
 
 type CreatePostParams struct {
-	Title       string         `json:"title"`
-	Url         string         `json:"url"`
-	Description sql.NullString `json:"description"`
-	PublishedAt sql.NullTime   `json:"published_at"`
-	FeedID      int64          `json:"feed_id"`
+	Title       string
+	Url         string
+	Description sql.NullString
+	PublishedAt sql.NullTime
+	FeedID      int64
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
@@ -58,20 +58,20 @@ SELECT p.id, p.created_at, p.updated_at, p.title, p.url, p.description, p.publis
 `
 
 type GetUnreadPostsForUserParams struct {
-	UserID int64 `json:"user_id"`
-	Limit  int64 `json:"limit"`
+	UserID int64
+	Limit  int64
 }
 
 type GetUnreadPostsForUserRow struct {
-	ID          int64          `json:"id"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	Title       string         `json:"title"`
-	Url         string         `json:"url"`
-	Description sql.NullString `json:"description"`
-	PublishedAt sql.NullTime   `json:"published_at"`
-	FeedID      int64          `json:"feed_id"`
-	FeedName    string         `json:"feed_name"`
+	ID          int64
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Title       string
+	Url         string
+	Description sql.NullString
+	PublishedAt sql.NullTime
+	FeedID      int64
+	FeedName    string
 }
 
 func (q *Queries) GetUnreadPostsForUser(ctx context.Context, arg GetUnreadPostsForUserParams) ([]GetUnreadPostsForUserRow, error) {

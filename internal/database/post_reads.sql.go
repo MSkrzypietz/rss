@@ -16,8 +16,8 @@ VALUES (?, ?)
 `
 
 type CreatePostReadParams struct {
-	UserID int64 `json:"user_id"`
-	PostID int64 `json:"post_id"`
+	UserID int64
+	PostID int64
 }
 
 func (q *Queries) CreatePostRead(ctx context.Context, arg CreatePostReadParams) (PostRead, error) {

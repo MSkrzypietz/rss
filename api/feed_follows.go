@@ -5,7 +5,34 @@ import (
 	"github.com/MSkrzypietz/rss/internal/database"
 	"net/http"
 	"strconv"
+	"time"
 )
+
+type GetFeedFollowResponse struct {
+	ID        int64     `json:"id"`
+	UserID    int64     `json:"user_id"`
+	FeedID    int64     `json:"feed_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func mapGetFeedFollowResponses(dbFeedFollows []database.FeedFollow) []GetFeedFollowResponse {
+	var responses []GetFeedFollowResponse
+	for _, dbFeedFollow := range dbFeedFollows {
+		responses = append(responses, mapGetFeedFollowResponse(dbFeedFollow))
+	}
+	return responses
+}
+
+func mapGetFeedFollowResponse(dbFeedFollow database.FeedFollow) GetFeedFollowResponse {
+	return GetFeedFollowResponse{
+		ID:        dbFeedFollow.ID,
+		UserID:    dbFeedFollow.UserID,
+		FeedID:    dbFeedFollow.FeedID,
+		CreatedAt: dbFeedFollow.CreatedAt,
+		UpdatedAt: dbFeedFollow.UpdatedAt,
+	}
+}
 
 func (cfg *Config) getFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFollows, err := cfg.db.GetFeedFollows(r.Context(), user.ID)
@@ -14,7 +41,7 @@ func (cfg *Config) getFeedFollows(w http.ResponseWriter, r *http.Request, user d
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, feedFollows)
+	respondWithJSON(w, http.StatusOK, mapGetFeedFollowResponses(feedFollows))
 }
 
 func (cfg *Config) createFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -29,7 +56,7 @@ func (cfg *Config) createFeedFollow(w http.ResponseWriter, r *http.Request, user
 		return
 	}
 
-	feed, err := cfg.db.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+	feedFollow, err := cfg.db.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
 		UserID: user.ID,
 		FeedID: params.FeedID,
 	})
@@ -38,7 +65,7 @@ func (cfg *Config) createFeedFollow(w http.ResponseWriter, r *http.Request, user
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, feed)
+	respondWithJSON(w, http.StatusOK, mapGetFeedFollowResponse(feedFollow))
 }
 
 func (cfg *Config) deleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
