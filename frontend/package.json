@@ -13,8 +13,9 @@
   "dependencies": {
     "@fontsource-variable/source-code-pro": "^5.1.0",
     "@fontsource-variable/source-sans-3": "^5.1.0",
+    "@vueuse/core": "^12.0.0",
     "pinia": "^2.2.6",
-    "sit-onyx": "^1.0.0-beta.70",
+    "sit-onyx": "^1.0.0-beta.73",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
   },
