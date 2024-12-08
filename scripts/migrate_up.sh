@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ -f .env ]; then
-    source .env
+if [ -f backend/.env ]; then
+    source backend/.env
 fi
 
 cd backend/sql/schema
