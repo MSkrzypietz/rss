@@ -22,6 +22,8 @@ func NewConfig(db *sql.DB) *Config {
 func (cfg *Config) Handlers() http.Handler {
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("POST /auth/login", cfg.login)
+
 	mux.HandleFunc("GET /users", cfg.authenticate(cfg.getAuthenticatedUser))
 	mux.HandleFunc("POST /users", cfg.createUser)
 
