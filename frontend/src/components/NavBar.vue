@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import { useColorMode } from '@vueuse/core';
 import { OnyxNavBar, OnyxNavButton, OnyxUserMenu, OnyxColorSchemeMenuItem } from 'sit-onyx';
+import { useAuthStore } from '@/stores/auth';
+import { Routes } from '@/router';
+import { useRouter } from 'vue-router';
 
 const { store: colorScheme } = useColorMode();
+const authStore = useAuthStore();
+const router = useRouter();
 </script>
 
 <template>
-  <OnyxNavBar class="navbar" appName="RSS">
-    <OnyxNavButton href="/feed" label="Feed" />
-    <OnyxNavButton href="/edit" label="Edit" />
-    <OnyxUserMenu class="navbar__userMenu" username="John Doe">
-      <OnyxColorSchemeMenuItem v-model="colorScheme" />
-    </OnyxUserMenu>
+  <OnyxNavBar class="navbar" appName="RSS" @navigateToStart="router.push({ name: Routes.Feed })">
+    <template v-if="authStore.user">
+      <RouterLink :to="{ name: Routes.Feed }"><OnyxNavButton href="#" label="Feed" /></RouterLink>
+      <RouterLink :to="{ name: Routes.Edit }"><OnyxNavButton href="#" label="Edit" /></RouterLink>
+      <OnyxUserMenu class="navbar__userMenu" :username="authStore.user.name">
+        <OnyxColorSchemeMenuItem v-model="colorScheme" />
+      </OnyxUserMenu>
+    </template>
   </OnyxNavBar>
 </template>
 

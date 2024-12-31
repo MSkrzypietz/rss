@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { OnyxButton, OnyxHeadline, OnyxInput, OnyxPageLayout } from 'sit-onyx';
+import { useAuthStore } from '@/stores/auth';
+import { onMounted, ref } from 'vue';
+
+const authStore = useAuthStore();
+const apiKey = ref('');
+
+onMounted(() => {
+  authStore.tryAutoLogin();
+});
 </script>
 
 <template>
@@ -11,8 +20,13 @@ import { OnyxButton, OnyxHeadline, OnyxInput, OnyxPageLayout } from 'sit-onyx';
       </section>
 
       <form class="onyx-grid" @submit.prevent>
-        <OnyxInput class="onyx-grid-span-4" label="API Key" required />
-        <OnyxButton class="onyx-grid-span-16" label="Log In" type="submit" />
+        <OnyxInput class="onyx-grid-span-4" label="API Key" type="password" required v-model="apiKey" />
+        <OnyxButton
+          class="onyx-grid-span-16"
+          label="Log In"
+          type="submit"
+          :loading="authStore.isLoggingIn"
+          @click="authStore.login(apiKey)" />
       </form>
     </div>
   </OnyxPageLayout>
