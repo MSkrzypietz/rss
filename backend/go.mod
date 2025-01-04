@@ -1,9 +1,11 @@
 module github.com/MSkrzypietz/rss
 
-go 1.22.1
+go 1.23
+
+toolchain go1.23.4
 
 require (
-	github.com/a-h/templ v0.2.747
+	github.com/a-h/templ v0.3.819
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/tursodatabase/libsql-client-go v0.0.0-20240416075003-747366ff79c4
