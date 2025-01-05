@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/MSkrzypietz/rss/internal/database"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -61,4 +62,23 @@ func (cfg *Config) getUnreadPosts(w http.ResponseWriter, r *http.Request, user d
 	}
 
 	respondWithJSON(w, http.StatusOK, mapGetUnreadPostResponses(posts))
+}
+
+func (cfg *Config) markPostAsRead(w http.ResponseWriter, r *http.Request, user database.User) {
+	postID, err := strconv.ParseInt(r.PathValue("postID"), 10, 64)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest)
+		return
+	}
+
+	_, err = cfg.db.CreatePostRead(r.Context(), database.CreatePostReadParams{
+		UserID: user.ID,
+		PostID: postID,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, struct{}{})
 }
