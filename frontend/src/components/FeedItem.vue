@@ -23,7 +23,7 @@ if (props.post.published_at !== null) {
   <a class="feed-item" :href="post.url" target="_blank">
     <div class="feed-item__header">
       <OnyxHeadline is="h2">{{ post.title }}</OnyxHeadline>
-      <OnyxButton label="Read" density="compact" @click="feedStore.markPostAsRead(post.id)"></OnyxButton>
+      <OnyxButton label="Read" density="compact" @click.stop.prevent="feedStore.markPostAsRead(post.id)"></OnyxButton>
     </div>
     <span class="onyx-text">{{ post.description }}</span>
     <p class="onyx-text">{{ publishDate }} - {{ post.feed_name }}</p>
