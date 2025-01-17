@@ -25,7 +25,9 @@ if (props.post.published_at !== null) {
       <OnyxHeadline is="h2">{{ post.title }}</OnyxHeadline>
       <OnyxButton label="Read" density="compact" @click.stop.prevent="feedStore.markPostAsRead(post.id)"></OnyxButton>
     </div>
-    <span class="onyx-text">{{ post.description }}</span>
+    <div class="feed-item__content">
+      <span class="onyx-text">{{ post.description }}</span>
+    </div>
     <p class="onyx-text">{{ publishDate }} - {{ post.feed_name }}</p>
   </a>
 </template>
@@ -41,10 +43,16 @@ if (props.post.published_at !== null) {
   &__header {
     display: flex;
     align-items: center;
+    gap: var(--onyx-spacing-2xs);
 
     :deep(.onyx-button) {
       margin-left: auto;
     }
+  }
+
+  &__content {
+    margin-top: var(--onyx-spacing-2xs);
+    margin-bottom: var(--onyx-spacing-4xs);
   }
 }
 </style>
