@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PostsAPI, { type Post } from '@/api/posts.ts';
+import { type Post } from '@/api/posts.ts';
 import { OnyxHeadline, OnyxButton } from 'sit-onyx';
 import { useFeedStore } from '@/stores/feed.ts';
 
@@ -45,7 +45,7 @@ if (props.post.published_at !== null) {
     align-items: center;
     gap: var(--onyx-spacing-2xs);
 
-    :deep(.onyx-button) {
+    .onyx-button {
       margin-left: auto;
     }
   }
