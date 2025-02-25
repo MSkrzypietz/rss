@@ -40,6 +40,10 @@ if (props.post.published_at !== null) {
   color: inherit;
   padding: 1rem;
 
+  &:hover {
+    box-shadow: 0 0 10px 5px rgba(0, 150, 255, 0.7);
+  }
+
   &__header {
     display: flex;
     align-items: center;
