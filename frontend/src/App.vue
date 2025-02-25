@@ -6,7 +6,9 @@ import NavBar from '@/components/NavBar.vue';
 
 <template>
   <OnyxAppLayout class="onyx-grid-max-lg onyx-grid-center">
-    <NavBar />
+    <template #navBar>
+      <NavBar />
+    </template>
     <RouterView />
   </OnyxAppLayout>
 </template>
