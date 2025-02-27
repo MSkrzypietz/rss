@@ -52,9 +52,20 @@ func mapGetUnreadPostResponse(dbUnreadPost database.GetUnreadPostsForUserRow) Ge
 }
 
 func (cfg *Config) getUnreadPosts(w http.ResponseWriter, r *http.Request, user database.User) {
+	qs := r.URL.Query()
+	searchText := cfg.readString(qs, "searchText", "")
+	feedIDs, err := cfg.readCSVInt64s(qs, "feedIDs", []int64{})
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest)
+		return
+	}
+
 	posts, err := cfg.db.GetUnreadPostsForUser(r.Context(), database.GetUnreadPostsForUserParams{
-		UserID: user.ID,
-		Limit:  postGetterLimit,
+		SearchText:    "%" + searchText + "%",
+		FeedIDsLength: len(feedIDs),
+		FeedIDs:       feedIDs,
+		UserID:        user.ID,
+		Limit:         postGetterLimit,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError)

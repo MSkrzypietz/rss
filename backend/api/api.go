@@ -27,7 +27,7 @@ func (cfg *Config) Handlers() http.Handler {
 	mux.HandleFunc("GET /users", cfg.authenticate(cfg.getAuthenticatedUser))
 	mux.HandleFunc("POST /users", cfg.createUser)
 
-	mux.HandleFunc("GET /feeds", cfg.getFeeds)
+	mux.HandleFunc("GET /feeds", cfg.authenticate(cfg.getFeeds))
 	mux.HandleFunc("POST /feeds", cfg.authenticate(cfg.createFeed))
 
 	mux.HandleFunc("GET /feed_follows", cfg.authenticate(cfg.getFeedFollows))

@@ -12,7 +12,7 @@ type GetFeedResponse struct {
 	UserID        int64      `json:"user_id"`
 	Name          string     `json:"name"`
 	Url           string     `json:"url"`
-	LastFetchedAt *time.Time `json:"last_fetched_at"`
+	LastFetchedAt *time.Time `json:"-"`
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at"`
 }
@@ -41,8 +41,8 @@ func mapGetFeedResponse(dbFeed database.Feed) GetFeedResponse {
 	}
 }
 
-func (cfg *Config) getFeeds(w http.ResponseWriter, r *http.Request) {
-	feeds, err := cfg.db.GetFeeds(r.Context())
+func (cfg *Config) getFeeds(w http.ResponseWriter, r *http.Request, user database.User) {
+	feeds, err := cfg.db.GetUserFeeds(r.Context(), user.ID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError)
 		return
