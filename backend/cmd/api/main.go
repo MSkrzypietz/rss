@@ -3,13 +3,20 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
+
+type application struct {
+	db         *database.Queries
+	httpClient *http.Client
+}
 
 func main() {
 	if !isProductionEnv() {
@@ -37,12 +44,15 @@ func main() {
 		log.Fatalf("Cannot ping database: %v", err)
 	}
 
-	apiCfg := NewConfig(db)
-	go apiCfg.ContinuousFeedScraping()
+	app := &application{
+		db:         database.New(db),
+		httpClient: &http.Client{Timeout: 5 * time.Second},
+	}
+	go app.ContinuousFeedScraping()
 
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir("./static")))
-	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiCfg.Handlers()))
+	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", app.routes()))
 	corsMux := middlewareCors(mux)
 
 	server := http.Server{Addr: ":" + httpPort, Handler: corsMux}

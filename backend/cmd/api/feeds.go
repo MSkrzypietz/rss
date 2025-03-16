@@ -41,8 +41,8 @@ func mapGetFeedResponse(dbFeed database.Feed) GetFeedResponse {
 	}
 }
 
-func (cfg *Config) getFeeds(w http.ResponseWriter, r *http.Request, user database.User) {
-	feeds, err := cfg.db.GetUserFeeds(r.Context(), user.ID)
+func (app *application) getFeeds(w http.ResponseWriter, r *http.Request, user database.User) {
+	feeds, err := app.db.GetUserFeeds(r.Context(), user.ID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError)
 		return
@@ -51,7 +51,7 @@ func (cfg *Config) getFeeds(w http.ResponseWriter, r *http.Request, user databas
 	respondWithJSON(w, http.StatusOK, mapGetFeedResponses(feeds))
 }
 
-func (cfg *Config) createFeed(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) createFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		Name string `json:"name"`
 		Url  string `json:"url"`
@@ -65,7 +65,7 @@ func (cfg *Config) createFeed(w http.ResponseWriter, r *http.Request, user datab
 	}
 
 	// TODO: Should probably add a transaction...
-	feed, err := cfg.db.CreateFeed(r.Context(), database.CreateFeedParams{
+	feed, err := app.db.CreateFeed(r.Context(), database.CreateFeedParams{
 		Name:   params.Name,
 		Url:    params.Url,
 		UserID: user.ID,
@@ -75,7 +75,7 @@ func (cfg *Config) createFeed(w http.ResponseWriter, r *http.Request, user datab
 		return
 	}
 
-	feedFollow, err := cfg.db.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+	feedFollow, err := app.db.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
 		UserID: user.ID,
 		FeedID: feed.ID,
 	})

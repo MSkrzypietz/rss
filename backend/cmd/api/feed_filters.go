@@ -38,8 +38,8 @@ func mapGetFeedFilterResponse(dbFeedFilter database.FeedFilter) GetFeedFilterRes
 	}
 }
 
-func (cfg *Config) getFeedFilters(w http.ResponseWriter, r *http.Request, user database.User) {
-	feedFilters, err := cfg.db.GetUserFeedFilters(r.Context(), user.ID)
+func (app *application) getFeedFilters(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedFilters, err := app.db.GetUserFeedFilters(r.Context(), user.ID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError)
 		return
@@ -47,7 +47,7 @@ func (cfg *Config) getFeedFilters(w http.ResponseWriter, r *http.Request, user d
 	respondWithJSON(w, http.StatusOK, mapGetFeedFilterResponses(feedFilters))
 }
 
-func (cfg *Config) createFeedFilter(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) createFeedFilter(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		FeedID     int64  `json:"feed_id"`
 		FilterText string `json:"filter_text"`
@@ -60,7 +60,7 @@ func (cfg *Config) createFeedFilter(w http.ResponseWriter, r *http.Request, user
 		return
 	}
 
-	feedFilter, err := cfg.db.CreateFeedFilter(r.Context(), database.CreateFeedFilterParams{
+	feedFilter, err := app.db.CreateFeedFilter(r.Context(), database.CreateFeedFilterParams{
 		UserID:     user.ID,
 		FeedID:     params.FeedID,
 		FilterText: params.FilterText,
@@ -73,14 +73,14 @@ func (cfg *Config) createFeedFilter(w http.ResponseWriter, r *http.Request, user
 	respondWithJSON(w, http.StatusOK, mapGetFeedFilterResponse(feedFilter))
 }
 
-func (cfg *Config) deleteFeedFilter(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) deleteFeedFilter(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFilterID, err := strconv.ParseInt(r.PathValue("feedFilterID"), 10, 64)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest)
 		return
 	}
 
-	err = cfg.db.DeleteFeedFilter(r.Context(), feedFilterID)
+	err = app.db.DeleteFeedFilter(r.Context(), feedFilterID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError)
 		return

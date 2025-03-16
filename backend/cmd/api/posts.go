@@ -51,16 +51,16 @@ func mapGetUnreadPostResponse(dbUnreadPost database.GetUnreadPostsForUserRow) Ge
 	}
 }
 
-func (cfg *Config) getUnreadPosts(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) getUnreadPosts(w http.ResponseWriter, r *http.Request, user database.User) {
 	qs := r.URL.Query()
-	searchText := cfg.readString(qs, "searchText", "")
-	feedIDs, err := cfg.readCSVInt64s(qs, "feedIDs", []int64{})
+	searchText := app.readString(qs, "searchText", "")
+	feedIDs, err := app.readCSVInt64s(qs, "feedIDs", []int64{})
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest)
 		return
 	}
 
-	posts, err := cfg.db.GetUnreadPostsForUser(r.Context(), database.GetUnreadPostsForUserParams{
+	posts, err := app.db.GetUnreadPostsForUser(r.Context(), database.GetUnreadPostsForUserParams{
 		SearchText:    "%" + searchText + "%",
 		FeedIDsLength: len(feedIDs),
 		FeedIDs:       feedIDs,
@@ -75,14 +75,14 @@ func (cfg *Config) getUnreadPosts(w http.ResponseWriter, r *http.Request, user d
 	respondWithJSON(w, http.StatusOK, mapGetUnreadPostResponses(posts))
 }
 
-func (cfg *Config) markPostAsRead(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) markPostAsRead(w http.ResponseWriter, r *http.Request, user database.User) {
 	postID, err := strconv.ParseInt(r.PathValue("postID"), 10, 64)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest)
 		return
 	}
 
-	_, err = cfg.db.CreatePostRead(r.Context(), database.CreatePostReadParams{
+	_, err = app.db.CreatePostRead(r.Context(), database.CreatePostReadParams{
 		UserID: user.ID,
 		PostID: postID,
 	})

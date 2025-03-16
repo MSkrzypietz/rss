@@ -14,10 +14,10 @@ import (
 const fetchInterval = 3 * time.Hour
 const fetchLimit = 2
 
-func (cfg *Config) fetchFeed(url string) (parser.Feed, error) {
+func (app *application) fetchFeed(url string) (parser.Feed, error) {
 	var feed parser.Feed
 
-	resp, err := cfg.httpClient.Get(url)
+	resp, err := app.httpClient.Get(url)
 	if err != nil {
 		return feed, err
 	}
@@ -30,10 +30,10 @@ func (cfg *Config) fetchFeed(url string) (parser.Feed, error) {
 	return feed, nil
 }
 
-func (cfg *Config) ContinuousFeedScraping() {
+func (app *application) ContinuousFeedScraping() {
 	ticker := time.NewTicker(fetchInterval)
 	for range ticker.C {
-		feedsToFetch, err := cfg.db.GetNextFeedsToFetch(context.Background(), fetchLimit)
+		feedsToFetch, err := app.db.GetNextFeedsToFetch(context.Background(), fetchLimit)
 		if err != nil {
 			log.Printf("Feed Fetcher could not get the next feeds to fetch: %v\n", err)
 			continue
@@ -45,13 +45,13 @@ func (cfg *Config) ContinuousFeedScraping() {
 			go func() {
 				defer wg.Done()
 
-				err := cfg.db.MarkFeedFetched(context.Background(), feed.ID)
+				err := app.db.MarkFeedFetched(context.Background(), feed.ID)
 				if err != nil {
 					log.Printf("Feed Fetcher could not mark the feed as fetched: %v\n", err)
 					return
 				}
 
-				fetchedFeed, err := cfg.fetchFeed(feed.Url)
+				fetchedFeed, err := app.fetchFeed(feed.Url)
 				if err != nil {
 					log.Printf("Feed Fetcher could not get the feed %v: %v\n", feed.Url, err)
 					return
@@ -60,7 +60,7 @@ func (cfg *Config) ContinuousFeedScraping() {
 				log.Printf("Fetched feed: %v\n", feed.Url)
 				var newPosts []database.Post
 				for _, feedItem := range fetchedFeed.Items {
-					post, err := cfg.db.CreatePost(context.Background(), database.CreatePostParams{
+					post, err := app.db.CreatePost(context.Background(), database.CreatePostParams{
 						Title: feedItem.Title,
 						Url:   feedItem.Link,
 						Description: sql.NullString{
@@ -80,7 +80,7 @@ func (cfg *Config) ContinuousFeedScraping() {
 					}
 				}
 
-				if err = cfg.applyFeedFilters(feed.ID, newPosts); err != nil {
+				if err = app.applyFeedFilters(feed.ID, newPosts); err != nil {
 					log.Printf("Feed Fetcher could not apply the feed filters: %v\n", err)
 				}
 			}()
@@ -89,8 +89,8 @@ func (cfg *Config) ContinuousFeedScraping() {
 	}
 }
 
-func (cfg *Config) applyFeedFilters(feedID int64, newPosts []database.Post) error {
-	feedFilters, err := cfg.db.GetFeedFilters(context.Background(), feedID)
+func (app *application) applyFeedFilters(feedID int64, newPosts []database.Post) error {
+	feedFilters, err := app.db.GetFeedFilters(context.Background(), feedID)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func (cfg *Config) applyFeedFilters(feedID int64, newPosts []database.Post) erro
 		for _, post := range newPosts {
 			title := strings.ToLower(post.Title)
 			if strings.Contains(title, filterText) {
-				_, err = cfg.db.CreatePostRead(context.Background(), database.CreatePostReadParams{
+				_, err = app.db.CreatePostRead(context.Background(), database.CreatePostReadParams{
 					UserID: feedFilter.UserID,
 					PostID: post.ID,
 				})

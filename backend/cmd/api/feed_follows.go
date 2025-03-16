@@ -34,8 +34,8 @@ func mapGetFeedFollowResponse(dbFeedFollow database.FeedFollow) GetFeedFollowRes
 	}
 }
 
-func (cfg *Config) getFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
-	feedFollows, err := cfg.db.GetFeedFollows(r.Context(), user.ID)
+func (app *application) getFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedFollows, err := app.db.GetFeedFollows(r.Context(), user.ID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError)
 		return
@@ -44,7 +44,7 @@ func (cfg *Config) getFeedFollows(w http.ResponseWriter, r *http.Request, user d
 	respondWithJSON(w, http.StatusOK, mapGetFeedFollowResponses(feedFollows))
 }
 
-func (cfg *Config) createFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) createFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		FeedID int64 `json:"feed_id"`
 	}
@@ -56,7 +56,7 @@ func (cfg *Config) createFeedFollow(w http.ResponseWriter, r *http.Request, user
 		return
 	}
 
-	feedFollow, err := cfg.db.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+	feedFollow, err := app.db.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
 		UserID: user.ID,
 		FeedID: params.FeedID,
 	})
@@ -68,14 +68,14 @@ func (cfg *Config) createFeedFollow(w http.ResponseWriter, r *http.Request, user
 	respondWithJSON(w, http.StatusOK, mapGetFeedFollowResponse(feedFollow))
 }
 
-func (cfg *Config) deleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) deleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFollowID, err := strconv.ParseInt(r.PathValue("feedFollowID"), 10, 64)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest)
 		return
 	}
 
-	err = cfg.db.DeleteFeedFollow(r.Context(), database.DeleteFeedFollowParams{
+	err = app.db.DeleteFeedFollow(r.Context(), database.DeleteFeedFollowParams{
 		ID:     feedFollowID,
 		UserID: user.ID,
 	})

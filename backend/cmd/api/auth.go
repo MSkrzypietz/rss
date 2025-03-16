@@ -13,15 +13,15 @@ const sessionCookieName = "sessionID"
 
 type authedHandler func(http.ResponseWriter, *http.Request, database.User)
 
-func (cfg *Config) authenticate(handler authedHandler) http.HandlerFunc {
+func (app *application) authenticate(handler authedHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user, found := cfg.getUserByAuthHeader(r)
+		user, found := app.getUserByAuthHeader(r)
 		if found {
 			handler(w, r, user)
 			return
 		}
 
-		user, found = cfg.getUserBySessionCookie(r)
+		user, found = app.getUserBySessionCookie(r)
 		if found {
 			handler(w, r, user)
 			return
@@ -31,34 +31,34 @@ func (cfg *Config) authenticate(handler authedHandler) http.HandlerFunc {
 	}
 }
 
-func (cfg *Config) getUserByAuthHeader(r *http.Request) (database.User, bool) {
+func (app *application) getUserByAuthHeader(r *http.Request) (database.User, bool) {
 	authHeader := r.Header.Get("Authorization")
 	apiKey, found := strings.CutPrefix(authHeader, "ApiKey ")
 	if !found {
 		return database.User{}, false
 	}
 
-	user, err := cfg.db.GetUser(r.Context(), apiKey)
+	user, err := app.db.GetUser(r.Context(), apiKey)
 	if err != nil {
 		return database.User{}, false
 	}
 	return user, true
 }
 
-func (cfg *Config) getUserBySessionCookie(r *http.Request) (database.User, bool) {
+func (app *application) getUserBySessionCookie(r *http.Request) (database.User, bool) {
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil {
 		return database.User{}, false
 	}
 
-	user, err := cfg.db.GetUserBySession(r.Context(), cookie.Value)
+	user, err := app.db.GetUserBySession(r.Context(), cookie.Value)
 	if err != nil {
 		return database.User{}, false
 	}
 	return user, true
 }
 
-func (cfg *Config) login(w http.ResponseWriter, r *http.Request) {
+func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		ApiKey string `json:"apiKey"`
 	}
@@ -70,7 +70,7 @@ func (cfg *Config) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := cfg.db.GetUser(r.Context(), params.ApiKey)
+	user, err := app.db.GetUser(r.Context(), params.ApiKey)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError)
 		return
@@ -78,7 +78,7 @@ func (cfg *Config) login(w http.ResponseWriter, r *http.Request) {
 
 	token := uuid.New().String()
 	expiryInSeconds := 2592000
-	_, err = cfg.db.CreateSession(r.Context(), database.CreateSessionParams{
+	_, err = app.db.CreateSession(r.Context(), database.CreateSessionParams{
 		Token:     token,
 		ExpiresAt: time.Now().Add(time.Duration(expiryInSeconds) * time.Second),
 		UserID:    user.ID,

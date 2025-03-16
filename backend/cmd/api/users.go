@@ -26,11 +26,11 @@ func mapGetUserResponse(dbUser database.User) GetUserResponse {
 	}
 }
 
-func (cfg *Config) getAuthenticatedUser(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) getAuthenticatedUser(w http.ResponseWriter, r *http.Request, user database.User) {
 	respondWithJSON(w, http.StatusOK, mapGetUserResponse(user))
 }
 
-func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
+func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`
 	}
@@ -42,7 +42,7 @@ func (cfg *Config) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
+	user, err := app.db.CreateUser(r.Context(), database.CreateUserParams{
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Name:      params.Name,
