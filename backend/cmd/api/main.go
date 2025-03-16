@@ -51,7 +51,6 @@ func main() {
 	go app.ContinuousFeedScraping()
 
 	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir("./static")))
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", app.routes()))
 	corsMux := middlewareCors(mux)
 
