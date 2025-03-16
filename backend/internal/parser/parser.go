@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"time"
 )
 
@@ -20,13 +21,16 @@ type Feed struct {
 }
 
 type Parser struct {
+	logger *slog.Logger
 }
 
-func NewParser() Parser {
-	return Parser{}
+func NewParser(logger *slog.Logger) *Parser {
+	return &Parser{
+		logger: logger,
+	}
 }
 
-func (p Parser) Parse(r io.Reader) (Feed, error) {
+func (p *Parser) Parse(r io.Reader) (Feed, error) {
 	data, err := io.ReadAll(r)
 	if err != nil {
 		return Feed{}, err
@@ -39,9 +43,9 @@ func (p Parser) Parse(r io.Reader) (Feed, error) {
 
 	switch feedType {
 	case feedTypeRss:
-		return parseRssFeed(data)
+		return p.parseRssFeed(data)
 	case feedTypeAtom:
-		return parseAtomFeed(data)
+		return p.parseAtomFeed(data)
 	default:
 		return Feed{}, fmt.Errorf("unknown feed type")
 	}

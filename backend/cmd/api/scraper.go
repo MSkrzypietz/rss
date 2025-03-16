@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/MSkrzypietz/rss/internal/parser"
-	"log"
 	"strings"
 	"sync"
 	"time"
@@ -23,7 +22,7 @@ func (app *application) fetchFeed(url string) (parser.Feed, error) {
 	}
 	defer resp.Body.Close()
 
-	feed, err = parser.NewParser().Parse(resp.Body)
+	feed, err = parser.NewParser(app.logger).Parse(resp.Body)
 	if err != nil {
 		return feed, err
 	}
@@ -35,7 +34,7 @@ func (app *application) ContinuousFeedScraping() {
 	for range ticker.C {
 		feedsToFetch, err := app.db.GetNextFeedsToFetch(context.Background(), fetchLimit)
 		if err != nil {
-			log.Printf("Feed Fetcher could not get the next feeds to fetch: %v\n", err)
+			app.logger.Error("Feed Fetcher could not get the next feeds to fetch", "error", err)
 			continue
 		}
 
@@ -47,17 +46,17 @@ func (app *application) ContinuousFeedScraping() {
 
 				err := app.db.MarkFeedFetched(context.Background(), feed.ID)
 				if err != nil {
-					log.Printf("Feed Fetcher could not mark the feed as fetched: %v\n", err)
+					app.logger.Error("Feed Fetcher could not mark the feed as fetched", "error", err)
 					return
 				}
 
 				fetchedFeed, err := app.fetchFeed(feed.Url)
 				if err != nil {
-					log.Printf("Feed Fetcher could not get the feed %v: %v\n", feed.Url, err)
+					app.logger.Error("Feed Fetcher could not get the feed", "feed", feed.Url, "error", err)
 					return
 				}
 
-				log.Printf("Fetched feed: %v\n", feed.Url)
+				app.logger.Info("Fetched feed", "feed", feed.Url)
 				var newPosts []database.Post
 				for _, feedItem := range fetchedFeed.Items {
 					post, err := app.db.CreatePost(context.Background(), database.CreatePostParams{
@@ -74,14 +73,14 @@ func (app *application) ContinuousFeedScraping() {
 						FeedID: feed.ID,
 					})
 					if err != nil {
-						log.Printf("Feed Fetcher could not create the post: %v\n", err)
+						app.logger.Error("Feed Fetcher could not create the post", "error", err)
 					} else {
 						newPosts = append(newPosts, post)
 					}
 				}
 
 				if err = app.applyFeedFilters(feed.ID, newPosts); err != nil {
-					log.Printf("Feed Fetcher could not apply the feed filters: %v\n", err)
+					app.logger.Error("Feed Fetcher could not apply the feed filters: %v\n", "error", err)
 				}
 			}()
 		}

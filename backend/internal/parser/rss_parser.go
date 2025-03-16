@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/xml"
 	"html"
-	"log"
 )
 
 type rssFeed struct {
@@ -19,7 +18,7 @@ type rssFeed struct {
 	} `xml:"channel"`
 }
 
-func parseRssFeed(b []byte) (Feed, error) {
+func (p *Parser) parseRssFeed(b []byte) (Feed, error) {
 	var feed rssFeed
 	buf := bytes.NewBuffer(b)
 	decoder := xml.NewDecoder(buf)
@@ -32,7 +31,7 @@ func parseRssFeed(b []byte) (Feed, error) {
 	for _, item := range feed.Channel.Items {
 		publishedAt, err := parsePublishDate(item.PublishedAt)
 		if err != nil {
-			log.Printf("Rss parser could not parse the published date %v: %v\n", item.PublishedAt, err)
+			p.logger.Error("Rss parser could not parse the published date", "publishedAt", item.PublishedAt, "error", err)
 			continue
 		}
 

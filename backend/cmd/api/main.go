@@ -1,11 +1,11 @@
 package main
 
 import (
+	"context"
 	"database/sql"
-	"fmt"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/joho/godotenv"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -14,50 +14,76 @@ import (
 )
 
 type application struct {
+	logger     *slog.Logger
 	db         *database.Queries
 	httpClient *http.Client
 }
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
 	if !isProductionEnv() {
 		if err := godotenv.Load(); err != nil {
-			log.Fatalln(err)
+			logger.Error(err.Error())
+			os.Exit(1)
 		}
 	}
 
 	httpPort := os.Getenv("HTTP_PORT")
 	if httpPort == "" {
-		log.Fatalln("HTTP_PORT is undefined")
+		logger.Error("HTTP_PORT is undefined")
+		os.Exit(1)
 	}
 
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
-		log.Fatalln("DB_URL is undefined")
+		logger.Error("DB_URL is undefined")
+		os.Exit(1)
 	}
 
-	db, err := sql.Open("libsql", dbURL)
+	db, err := openDB(dbURL)
 	if err != nil {
-		log.Fatalf("Cannot open database connection: %v", err)
-	}
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("Cannot ping database: %v", err)
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	app := &application{
+		logger:     logger,
 		db:         database.New(db),
 		httpClient: &http.Client{Timeout: 5 * time.Second},
 	}
 	go app.ContinuousFeedScraping()
 
-	server := http.Server{
+	srv := http.Server{
 		Addr:    ":" + httpPort,
 		Handler: app.routes(),
 	}
-	fmt.Printf("Serving on http port: %s\n", httpPort)
-	log.Fatal(server.ListenAndServe())
+
+	logger.Info("starting srv", "addr", srv.Addr)
+	err = srv.ListenAndServe()
+	if err != nil {
+		logger.Error(err.Error())
+	}
 }
 
 func isProductionEnv() bool {
 	return os.Getenv("APP_ENV") == "production"
+}
+
+func openDB(dbURL string) (*sql.DB, error) {
+	db, err := sql.Open("libsql", dbURL)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = db.PingContext(ctx)
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
 }

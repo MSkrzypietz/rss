@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/xml"
 	"html"
-	"log"
 )
 
 type atomFeed struct {
@@ -19,7 +18,7 @@ type atomFeed struct {
 	} `xml:"entry"`
 }
 
-func parseAtomFeed(b []byte) (Feed, error) {
+func (p *Parser) parseAtomFeed(b []byte) (Feed, error) {
 	var feed atomFeed
 	buf := bytes.NewBuffer(b)
 	decoder := xml.NewDecoder(buf)
@@ -32,7 +31,7 @@ func parseAtomFeed(b []byte) (Feed, error) {
 	for _, entry := range feed.Entries {
 		publishedAt, err := parsePublishDate(entry.PublishedAt)
 		if err != nil {
-			log.Printf("Atom parser could not parse the published date %v: %v\n", entry.PublishedAt, err)
+			p.logger.Error("Atom parser could not parse the published date %v: %v\n", "publishedAt", entry.PublishedAt, "error", err)
 			continue
 		}
 
