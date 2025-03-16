@@ -50,11 +50,10 @@ func main() {
 	}
 	go app.ContinuousFeedScraping()
 
-	mux := http.NewServeMux()
-	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", app.routes()))
-	corsMux := middlewareCors(mux)
-
-	server := http.Server{Addr: ":" + httpPort, Handler: corsMux}
+	server := http.Server{
+		Addr:    ":" + httpPort,
+		Handler: app.routes(),
+	}
 	fmt.Printf("Serving on http port: %s\n", httpPort)
 	log.Fatal(server.ListenAndServe())
 }

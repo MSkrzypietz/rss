@@ -30,5 +30,5 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /readiness", getReadiness)
 	mux.HandleFunc("GET /err", getError)
 
-	return mux
+	return enableCORS(mux)
 }

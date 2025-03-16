@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func middlewareCors(next http.Handler) http.Handler {
+func enableCORS(next http.Handler) http.Handler {
 	origin := os.Getenv("ORIGIN_URL")
 	if origin == "" {
 		origin = "*"
