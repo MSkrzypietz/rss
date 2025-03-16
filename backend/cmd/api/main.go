@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/joho/godotenv"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -20,7 +21,15 @@ type application struct {
 }
 
 func main() {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logFile, err := os.OpenFile("/app/rss-api.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		slog.Error("Failed to open log file", "error", err)
+		return
+	}
+	defer logFile.Close()
+
+	multiWriter := io.MultiWriter(os.Stdout, logFile)
+	logger := slog.New(slog.NewTextHandler(multiWriter, nil))
 
 	if !isProductionEnv() {
 		if err := godotenv.Load(); err != nil {
