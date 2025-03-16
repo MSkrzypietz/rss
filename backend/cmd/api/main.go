@@ -3,12 +3,12 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/MSkrzypietz/rss/api"
 	"github.com/joho/godotenv"
-	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	"log"
 	"net/http"
 	"os"
+
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
 func main() {
@@ -37,7 +37,7 @@ func main() {
 		log.Fatalf("Cannot ping database: %v", err)
 	}
 
-	apiCfg := api.NewConfig(db)
+	apiCfg := NewConfig(db)
 	go apiCfg.ContinuousFeedScraping()
 
 	mux := http.NewServeMux()

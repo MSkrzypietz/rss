@@ -1,4 +1,4 @@
-package api
+package main
 
 import (
 	"github.com/MSkrzypietz/rss/internal/vcs"
