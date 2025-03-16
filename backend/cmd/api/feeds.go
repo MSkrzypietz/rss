@@ -44,11 +44,14 @@ func mapGetFeedResponse(dbFeed database.Feed) GetFeedResponse {
 func (app *application) getFeeds(w http.ResponseWriter, r *http.Request, user database.User) {
 	feeds, err := app.db.GetUserFeeds(r.Context(), user.ID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, mapGetFeedResponses(feeds))
+	err = app.writeJSON(w, http.StatusOK, mapGetFeedResponses(feeds), nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) createFeed(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -60,7 +63,7 @@ func (app *application) createFeed(w http.ResponseWriter, r *http.Request, user 
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -71,7 +74,7 @@ func (app *application) createFeed(w http.ResponseWriter, r *http.Request, user 
 		UserID: user.ID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -80,7 +83,7 @@ func (app *application) createFeed(w http.ResponseWriter, r *http.Request, user 
 		FeedID: feed.ID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -88,8 +91,11 @@ func (app *application) createFeed(w http.ResponseWriter, r *http.Request, user 
 		Feed       GetFeedResponse       `json:"feed"`
 		FeedFollow GetFeedFollowResponse `json:"feed_follow"`
 	}
-	respondWithJSON(w, http.StatusOK, returnVals{
+	err = app.writeJSON(w, http.StatusOK, returnVals{
 		Feed:       mapGetFeedResponse(feed),
 		FeedFollow: mapGetFeedFollowResponse(feedFollow),
-	})
+	}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }

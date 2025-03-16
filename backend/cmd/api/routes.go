@@ -26,9 +26,8 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /v1/posts", app.authenticate(app.getUnreadPosts))
 	mux.HandleFunc("POST /v1/posts/{postID}/read", app.authenticate(app.markPostAsRead))
 
-	mux.HandleFunc("GET /v1/healthcheck", healthcheckHandler)
-	mux.HandleFunc("GET /v1/readiness", getReadiness)
-	mux.HandleFunc("GET /v1/err", getError)
+	mux.HandleFunc("GET /v1/healthcheck", app.healthcheckHandler)
+	mux.HandleFunc("GET /v1/readiness", app.getReadiness)
 
 	return enableCORS(mux)
 }

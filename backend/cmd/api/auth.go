@@ -27,7 +27,7 @@ func (app *application) authenticate(handler authedHandler) http.HandlerFunc {
 			return
 		}
 
-		respondWithError(w, http.StatusUnauthorized)
+		app.authenticationRequiredResponse(w, r)
 	}
 }
 
@@ -66,13 +66,13 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	user, err := app.db.GetUser(r.Context(), params.ApiKey)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -84,7 +84,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		UserID:    user.ID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -97,5 +97,8 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	respondWithJSON(w, http.StatusOK, mapGetUserResponse(user))
+	err = app.writeJSON(w, http.StatusOK, mapGetUserResponse(user), nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }

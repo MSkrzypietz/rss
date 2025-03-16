@@ -41,10 +41,14 @@ func mapGetFeedFilterResponse(dbFeedFilter database.FeedFilter) GetFeedFilterRes
 func (app *application) getFeedFilters(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFilters, err := app.db.GetUserFeedFilters(r.Context(), user.ID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
-	respondWithJSON(w, http.StatusOK, mapGetFeedFilterResponses(feedFilters))
+
+	err = app.writeJSON(w, http.StatusOK, mapGetFeedFilterResponses(feedFilters), nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) createFeedFilter(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -56,7 +60,7 @@ func (app *application) createFeedFilter(w http.ResponseWriter, r *http.Request,
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -66,25 +70,31 @@ func (app *application) createFeedFilter(w http.ResponseWriter, r *http.Request,
 		FilterText: params.FilterText,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, mapGetFeedFilterResponse(feedFilter))
+	err = app.writeJSON(w, http.StatusOK, mapGetFeedFilterResponse(feedFilter), nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) deleteFeedFilter(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFilterID, err := strconv.ParseInt(r.PathValue("feedFilterID"), 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	err = app.db.DeleteFeedFilter(r.Context(), feedFilterID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, struct{}{})
+	err = app.writeJSON(w, http.StatusOK, struct{}{}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }

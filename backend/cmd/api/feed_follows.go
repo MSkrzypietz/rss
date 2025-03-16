@@ -37,11 +37,14 @@ func mapGetFeedFollowResponse(dbFeedFollow database.FeedFollow) GetFeedFollowRes
 func (app *application) getFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFollows, err := app.db.GetFeedFollows(r.Context(), user.ID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, mapGetFeedFollowResponses(feedFollows))
+	err = app.writeJSON(w, http.StatusOK, mapGetFeedFollowResponses(feedFollows), nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) createFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -52,7 +55,7 @@ func (app *application) createFeedFollow(w http.ResponseWriter, r *http.Request,
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -61,17 +64,20 @@ func (app *application) createFeedFollow(w http.ResponseWriter, r *http.Request,
 		FeedID: params.FeedID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, mapGetFeedFollowResponse(feedFollow))
+	err = app.writeJSON(w, http.StatusOK, mapGetFeedFollowResponse(feedFollow), nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) deleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFollowID, err := strconv.ParseInt(r.PathValue("feedFollowID"), 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -80,9 +86,12 @@ func (app *application) deleteFeedFollow(w http.ResponseWriter, r *http.Request,
 		UserID: user.ID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, struct{}{})
+	err = app.writeJSON(w, http.StatusOK, struct{}{}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }

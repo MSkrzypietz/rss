@@ -56,7 +56,6 @@ func (app *application) getUnreadPosts(w http.ResponseWriter, r *http.Request, u
 	searchText := app.readString(qs, "searchText", "")
 	feedIDs, err := app.readCSVInt64s(qs, "feedIDs", []int64{})
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest)
 		return
 	}
 
@@ -68,17 +67,20 @@ func (app *application) getUnreadPosts(w http.ResponseWriter, r *http.Request, u
 		Limit:         postGetterLimit,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, mapGetUnreadPostResponses(posts))
+	err = app.writeJSON(w, http.StatusOK, mapGetUnreadPostResponses(posts), nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) markPostAsRead(w http.ResponseWriter, r *http.Request, user database.User) {
 	postID, err := strconv.ParseInt(r.PathValue("postID"), 10, 64)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -87,9 +89,9 @@ func (app *application) markPostAsRead(w http.ResponseWriter, r *http.Request, u
 		PostID: postID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, struct{}{})
+	app.writeJSON(w, http.StatusOK, struct{}{}, nil)
 }
