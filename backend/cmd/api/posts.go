@@ -93,5 +93,8 @@ func (app *application) markPostAsRead(w http.ResponseWriter, r *http.Request, u
 		return
 	}
 
-	app.writeJSON(w, http.StatusOK, struct{}{}, nil)
+	err = app.writeJSON(w, http.StatusOK, struct{}{}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
