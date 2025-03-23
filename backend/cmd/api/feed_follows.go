@@ -34,7 +34,7 @@ func mapGetFeedFollowResponse(dbFeedFollow database.FeedFollow) GetFeedFollowRes
 	}
 }
 
-func (app *application) getFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) listFeedFollowsHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFollows, err := app.db.GetFeedFollows(r.Context(), user.ID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -47,7 +47,7 @@ func (app *application) getFeedFollows(w http.ResponseWriter, r *http.Request, u
 	}
 }
 
-func (app *application) createFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) createFeedFollowHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		FeedID int64 `json:"feed_id"`
 	}
@@ -74,7 +74,7 @@ func (app *application) createFeedFollow(w http.ResponseWriter, r *http.Request,
 	}
 }
 
-func (app *application) deleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) deleteFeedFollowHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFollowID, err := strconv.ParseInt(r.PathValue("feedFollowID"), 10, 64)
 	if err != nil {
 		app.badRequestResponse(w, r, err)

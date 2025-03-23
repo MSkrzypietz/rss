@@ -26,14 +26,14 @@ func mapGetUserResponse(dbUser database.User) GetUserResponse {
 	}
 }
 
-func (app *application) getAuthenticatedUser(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) getAuthenticatedUserHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	err := app.writeJSON(w, http.StatusOK, mapGetUserResponse(user), nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
-func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
+func (app *application) createUserHandler(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`
 	}

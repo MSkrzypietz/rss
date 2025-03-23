@@ -41,7 +41,7 @@ func mapGetFeedResponse(dbFeed database.Feed) GetFeedResponse {
 	}
 }
 
-func (app *application) getFeeds(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) listFeedsHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	feeds, err := app.db.GetUserFeeds(r.Context(), user.ID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -54,7 +54,7 @@ func (app *application) getFeeds(w http.ResponseWriter, r *http.Request, user da
 	}
 }
 
-func (app *application) createFeed(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) createFeedHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		Name string `json:"name"`
 		Url  string `json:"url"`

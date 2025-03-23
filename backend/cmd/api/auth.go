@@ -58,7 +58,7 @@ func (app *application) getUserBySessionCookie(r *http.Request) (database.User, 
 	return user, true
 }
 
-func (app *application) login(w http.ResponseWriter, r *http.Request) {
+func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		ApiKey string `json:"apiKey"`
 	}

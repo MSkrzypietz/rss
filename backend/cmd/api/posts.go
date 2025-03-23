@@ -51,7 +51,7 @@ func mapGetUnreadPostResponse(dbUnreadPost database.GetUnreadPostsForUserRow) Ge
 	}
 }
 
-func (app *application) getUnreadPosts(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) getUnreadPostsHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	qs := r.URL.Query()
 	searchText := app.readString(qs, "searchText", "")
 	feedIDs, err := app.readCSVInt64s(qs, "feedIDs", []int64{})
@@ -77,7 +77,7 @@ func (app *application) getUnreadPosts(w http.ResponseWriter, r *http.Request, u
 	}
 }
 
-func (app *application) markPostAsRead(w http.ResponseWriter, r *http.Request, user database.User) {
+func (app *application) markPostAsReadHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	postID, err := strconv.ParseInt(r.PathValue("postID"), 10, 64)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
