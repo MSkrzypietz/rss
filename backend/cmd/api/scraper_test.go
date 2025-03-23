@@ -23,7 +23,7 @@ func TestFetchFeed(t *testing.T) {
 	}
 
 	for _, feedUrl := range feedUrls {
-		_, err := app.fetchFeed(feedUrl)
+		_, err := app.getFeedByUrl(feedUrl)
 		if err != nil {
 			t.Fatal(err)
 		}

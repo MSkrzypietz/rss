@@ -1,6 +1,9 @@
 -- name: GetFeeds :many
 SELECT * from feeds;
 
+-- name: GetFeedByID :one
+SELECT * from feeds WHERE id=?;
+
 -- name: GetUserFeeds :many
 SELECT * from feeds WHERE user_id=?;
 

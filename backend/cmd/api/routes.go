@@ -14,6 +14,7 @@ func (app *application) routes() http.Handler {
 
 	mux.HandleFunc("GET /v1/feeds", app.authenticate(app.listFeedsHandler))
 	mux.HandleFunc("POST /v1/feeds", app.authenticate(app.createFeedHandler))
+	mux.HandleFunc("POST /v1/feeds/{feedID}/fetch", app.authenticate(app.fetchFeedHandler))
 
 	mux.HandleFunc("GET /v1/feed_follows", app.authenticate(app.listFeedFollowsHandler))
 	mux.HandleFunc("POST /v1/feed_follows", app.authenticate(app.createFeedFollowHandler))

@@ -14,4 +14,4 @@ RUN addgroup -S rss-api && adduser -S rss-api -G rss-api
 RUN chown -R rss-api:rss-api /app
 COPY --chown=rss:rss --from=backend-builder /app/rss-api .
 USER rss-api
-CMD ["/app/rss-api"]
+CMD ["/app/rss-api", "--logPath", "/app/rss-api.log"]

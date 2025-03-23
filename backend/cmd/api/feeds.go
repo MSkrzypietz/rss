@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -95,6 +96,27 @@ func (app *application) createFeedHandler(w http.ResponseWriter, r *http.Request
 		Feed:       mapGetFeedResponse(feed),
 		FeedFollow: mapGetFeedFollowResponse(feedFollow),
 	}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) fetchFeedHandler(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedID, err := strconv.ParseInt(r.PathValue("feedID"), 10, 64)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	feed, err := app.db.GetFeedByID(r.Context(), feedID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.fetchFeed(feed)
+
+	err = app.writeJSON(w, http.StatusOK, struct{}{}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

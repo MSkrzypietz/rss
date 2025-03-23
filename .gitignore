@@ -2,3 +2,4 @@
 .idea
 rss
 tmp
+*.log

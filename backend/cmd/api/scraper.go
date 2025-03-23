@@ -14,7 +14,7 @@ import (
 const fetchInterval = 3 * time.Hour
 const fetchLimit = 2
 
-func (app *application) fetchFeed(url string) (parser.Feed, error) {
+func (app *application) getFeedByUrl(url string) (parser.Feed, error) {
 	var feed parser.Feed
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -38,6 +38,47 @@ func (app *application) fetchFeed(url string) (parser.Feed, error) {
 	return feed, nil
 }
 
+func (app *application) fetchFeed(feed database.Feed) {
+	err := app.db.MarkFeedFetched(context.Background(), feed.ID)
+	if err != nil {
+		app.logger.Error("Feed Fetcher could not mark the feed as fetched", "error", err)
+		return
+	}
+
+	fetchedFeed, err := app.getFeedByUrl(feed.Url)
+	if err != nil {
+		app.logger.Error("Feed Fetcher could not get the feed", "feed", feed.Url, "error", err)
+		return
+	}
+
+	app.logger.Info("Fetched feed", "feed", feed.Url)
+	var newPosts []database.Post
+	for _, feedItem := range fetchedFeed.Items {
+		post, err := app.db.CreatePost(context.Background(), database.CreatePostParams{
+			Title: feedItem.Title,
+			Url:   feedItem.Link,
+			Description: sql.NullString{
+				String: feedItem.Description,
+				Valid:  true,
+			},
+			PublishedAt: sql.NullTime{
+				Time:  feedItem.PublishedAt,
+				Valid: true,
+			},
+			FeedID: feed.ID,
+		})
+		if err != nil {
+			app.logger.Error("Feed Fetcher could not create the post", "error", err)
+		} else {
+			newPosts = append(newPosts, post)
+		}
+	}
+
+	if err = app.applyFeedFilters(feed.ID, newPosts); err != nil {
+		app.logger.Error("Feed Fetcher could not apply the feed filters: %v\n", "error", err)
+	}
+}
+
 func (app *application) ContinuousFeedScraping() {
 	ticker := time.NewTicker(fetchInterval)
 	for range ticker.C {
@@ -52,45 +93,7 @@ func (app *application) ContinuousFeedScraping() {
 		for _, feed := range feedsToFetch {
 			go func() {
 				defer wg.Done()
-
-				err := app.db.MarkFeedFetched(context.Background(), feed.ID)
-				if err != nil {
-					app.logger.Error("Feed Fetcher could not mark the feed as fetched", "error", err)
-					return
-				}
-
-				fetchedFeed, err := app.fetchFeed(feed.Url)
-				if err != nil {
-					app.logger.Error("Feed Fetcher could not get the feed", "feed", feed.Url, "error", err)
-					return
-				}
-
-				app.logger.Info("Fetched feed", "feed", feed.Url)
-				var newPosts []database.Post
-				for _, feedItem := range fetchedFeed.Items {
-					post, err := app.db.CreatePost(context.Background(), database.CreatePostParams{
-						Title: feedItem.Title,
-						Url:   feedItem.Link,
-						Description: sql.NullString{
-							String: feedItem.Description,
-							Valid:  true,
-						},
-						PublishedAt: sql.NullTime{
-							Time:  feedItem.PublishedAt,
-							Valid: true,
-						},
-						FeedID: feed.ID,
-					})
-					if err != nil {
-						app.logger.Error("Feed Fetcher could not create the post", "error", err)
-					} else {
-						newPosts = append(newPosts, post)
-					}
-				}
-
-				if err = app.applyFeedFilters(feed.ID, newPosts); err != nil {
-					app.logger.Error("Feed Fetcher could not apply the feed filters: %v\n", "error", err)
-				}
+				app.fetchFeed(feed)
 			}()
 		}
 		wg.Wait()

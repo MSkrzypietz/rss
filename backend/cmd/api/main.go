@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"flag"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/joho/godotenv"
 	"io"
@@ -14,6 +15,10 @@ import (
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
+type config struct {
+	logPath string
+}
+
 type application struct {
 	logger     *slog.Logger
 	db         *database.Queries
@@ -21,7 +26,12 @@ type application struct {
 }
 
 func main() {
-	logFile, err := os.OpenFile("/app/rss-api.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	var cfg config
+
+	flag.StringVar(&cfg.logPath, "logPath", "rss.log", "Log file path")
+	flag.Parse()
+
+	logFile, err := os.OpenFile(cfg.logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		slog.Error("Failed to open log file", "error", err)
 		return
