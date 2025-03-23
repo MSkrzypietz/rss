@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/MSkrzypietz/rss/internal/database"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -79,7 +78,7 @@ func (app *application) getUnreadPostsHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (app *application) markPostAsReadHandler(w http.ResponseWriter, r *http.Request, user database.User) {
-	postID, err := strconv.ParseInt(r.PathValue("postID"), 10, 64)
+	postID, err := app.readIDParam(r)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return

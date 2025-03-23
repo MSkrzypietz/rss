@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -75,7 +74,7 @@ func (app *application) createFeedFollowHandler(w http.ResponseWriter, r *http.R
 }
 
 func (app *application) deleteFeedFollowHandler(w http.ResponseWriter, r *http.Request, user database.User) {
-	feedFollowID, err := strconv.ParseInt(r.PathValue("feedFollowID"), 10, 64)
+	feedFollowID, err := app.readIDParam(r)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return

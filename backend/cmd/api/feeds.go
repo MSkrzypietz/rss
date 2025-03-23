@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -102,7 +101,7 @@ func (app *application) createFeedHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) fetchFeedHandler(w http.ResponseWriter, r *http.Request, user database.User) {
-	feedID, err := strconv.ParseInt(r.PathValue("feedID"), 10, 64)
+	feedID, err := app.readIDParam(r)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
