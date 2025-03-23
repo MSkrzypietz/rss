@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/MSkrzypietz/rss/internal/parser"
+	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -16,7 +17,15 @@ const fetchLimit = 2
 func (app *application) fetchFeed(url string) (parser.Feed, error) {
 	var feed parser.Feed
 
-	resp, err := app.httpClient.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return feed, err
+	}
+
+	req.Header.Set("Accept", "application/rss+xml, application/xml;q=0.9, */*;q=0.8")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:136.0) Gecko/20100101 Firefox/136.0")
+
+	resp, err := app.httpClient.Do(req)
 	if err != nil {
 		return feed, err
 	}
