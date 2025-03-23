@@ -56,6 +56,7 @@ func (app *application) getUnreadPostsHandler(w http.ResponseWriter, r *http.Req
 	searchText := app.readString(qs, "searchText", "")
 	feedIDs, err := app.readCSVInt64s(qs, "feedIDs", []int64{})
 	if err != nil {
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
