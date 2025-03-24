@@ -10,8 +10,9 @@ ENV APP_ENV=production
 ENV HTTP_PORT=8080
 EXPOSE 8080
 WORKDIR /app
+RUN mkdir /app/logs
 RUN addgroup -S rss-api && adduser -S rss-api -G rss-api
 RUN chown -R rss-api:rss-api /app
 COPY --chown=rss:rss --from=backend-builder /app/rss-api .
 USER rss-api
-CMD ["/app/rss-api", "--logPath", "/app/rss-api.log"]
+CMD ["/app/rss-api", "--logPath", "/app/logs/rss-api.log"]
