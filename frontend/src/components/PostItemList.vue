@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue';
 import PostItem from '@/components/PostItem.vue';
-import { useFeedStore } from '@/stores/feed.ts';
+import { usePostStore } from '@/stores/post.ts';
 import { OnyxButton } from 'sit-onyx';
 import SearchBar from '@/components/SearchBar.vue';
 import { debounce } from '@/utils/debounce.ts';
 
-const feedStore = useFeedStore();
+const postStore = usePostStore();
 
 onMounted(async () => {
-  await Promise.all([feedStore.fetchUnreadPosts(), feedStore.fetchFeeds()]);
+  await Promise.all([postStore.fetchUnreadPosts(), postStore.fetchFeeds()]);
 });
 
 watch(
-  feedStore.postFilter,
-  debounce(() => feedStore.fetchUnreadPosts(), 500),
+  postStore.postFilter,
+  debounce(() => postStore.fetchUnreadPosts(), 500),
 );
 </script>
 
 <template>
   <SearchBar />
   <div class="onyx-grid feed-item-list">
-    <PostItem v-for="post in feedStore.posts" :post="post" class="onyx-grid-span-16">{{ post }}</PostItem>
-    <OnyxButton class="onyx-grid-span-16" label="Refresh" @click="feedStore.fetchUnreadPosts()" />
+    <PostItem v-for="post in postStore.posts" :post="post" class="onyx-grid-span-16">{{ post }}</PostItem>
+    <OnyxButton class="onyx-grid-span-16" label="Refresh" @click="postStore.fetchUnreadPosts()" />
   </div>
 </template>
 

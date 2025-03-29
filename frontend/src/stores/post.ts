@@ -4,7 +4,7 @@ import PostsAPI from '@/api/posts.ts';
 import type { Feed } from '@/api/feeds.ts';
 import FeedsAPI from '@/api/feeds.ts';
 
-export const useFeedStore = defineStore('feed', {
+export const usePostStore = defineStore('post', {
   state: () => {
     return {
       posts: null as Post[] | null,

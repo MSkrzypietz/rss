@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { type Post } from '@/api/posts.ts';
 import { OnyxHeadline, OnyxButton } from 'sit-onyx';
-import { useFeedStore } from '@/stores/feed.ts';
+import { usePostStore } from '@/stores/post.ts';
 
-const feedStore = useFeedStore();
+const postStore = usePostStore();
 
 const props = defineProps<{
   post: Post;
@@ -23,7 +23,7 @@ if (props.post.published_at !== null) {
   <a class="feed-item" :href="post.url" target="_blank">
     <div class="feed-item__header">
       <OnyxHeadline is="h2">{{ post.title }}</OnyxHeadline>
-      <OnyxButton label="Read" density="compact" @click.stop.prevent="feedStore.markPostAsRead(post.id)"></OnyxButton>
+      <OnyxButton label="Read" density="compact" @click.stop.prevent="postStore.markPostAsRead(post.id)"></OnyxButton>
     </div>
     <div class="feed-item__content">
       <span class="onyx-text">{{ post.description }}</span>

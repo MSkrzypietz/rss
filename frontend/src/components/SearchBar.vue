@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { OnyxInput, OnyxSelect, type SelectOption } from 'sit-onyx';
 import { computed } from 'vue';
-import { useFeedStore } from '@/stores/feed.ts';
+import { usePostStore } from '@/stores/post.ts';
 
-const feedStore = useFeedStore();
+const postStore = usePostStore();
 
 const feedOptions = computed((): SelectOption<number>[] => {
-  if (feedStore.feeds === null) {
+  if (postStore.feeds === null) {
     return [];
   }
 
-  return feedStore.feeds.map((feed) => {
+  return postStore.feeds.map((feed) => {
     return {
       value: feed.id,
       label: feed.name,
@@ -23,13 +23,13 @@ const feedOptions = computed((): SelectOption<number>[] => {
   <div class="onyx-grid">
     <OnyxInput
       class="onyx-grid-span-8"
-      v-model="feedStore.postFilter.searchText"
+      v-model="postStore.postFilter.searchText"
       label="Search"
       :hideLabel="true"
       placeholder="Search"></OnyxInput>
     <OnyxSelect
       class="onyx-grid-span-8 onyx-grid-md-span-4"
-      v-model="feedStore.postFilter.selectedFeedIDs"
+      v-model="postStore.postFilter.selectedFeedIDs"
       label="Feed selection"
       :hideLabel="true"
       listLabel="Feed selection"
