@@ -10,7 +10,7 @@ function redirectUserAfterLogin(router: Router) {
   if (typeof query.redirect === 'string') {
     router.push(query.redirect);
   } else {
-    router.push({ name: Routes.Feed });
+    router.push({ name: Routes.Posts });
   }
 }
 

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import FeedItemList from '@/components/FeedItemList.vue';
+import PostItemList from '@/components/PostItemList.vue';
 import { OnyxPageLayout } from 'sit-onyx';
 </script>
 
 <template>
   <OnyxPageLayout>
     <div class="onyx-grid-container">
-      <FeedItemList />
+      <PostItemList />
     </div>
   </OnyxPageLayout>
 </template>

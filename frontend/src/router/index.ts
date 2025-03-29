@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '@/views/LoginView.vue';
-import FeedView from '@/views/FeedView.vue';
+import PostsView from '@/views/PostsView.vue';
 import { useAuthStore } from '@/stores/auth';
 import NotFoundView from '@/views/NotFoundView.vue';
 import EditView from '@/views/EditView.vue';
@@ -13,7 +13,7 @@ declare module 'vue-router' {
 
 export enum Routes {
   Login = 'Login',
-  Feed = 'Feed',
+  Posts = 'Posts',
   Edit = 'Edit',
 }
 
@@ -27,8 +27,8 @@ const router = createRouter({
     },
     {
       path: '/',
-      name: Routes.Feed,
-      component: FeedView,
+      name: Routes.Posts,
+      component: PostsView,
       meta: {
         requiresAuth: true,
       },

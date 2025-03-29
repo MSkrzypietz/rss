@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue';
-import FeedItem from '@/components/FeedItem.vue';
+import PostItem from '@/components/PostItem.vue';
 import { useFeedStore } from '@/stores/feed.ts';
 import { OnyxButton } from 'sit-onyx';
 import SearchBar from '@/components/SearchBar.vue';
@@ -21,7 +21,7 @@ watch(
 <template>
   <SearchBar />
   <div class="onyx-grid feed-item-list">
-    <FeedItem v-for="post in feedStore.posts" :post="post" class="onyx-grid-span-16">{{ post }}</FeedItem>
+    <PostItem v-for="post in feedStore.posts" :post="post" class="onyx-grid-span-16">{{ post }}</PostItem>
     <OnyxButton class="onyx-grid-span-16" label="Refresh" @click="feedStore.fetchUnreadPosts()" />
   </div>
 </template>

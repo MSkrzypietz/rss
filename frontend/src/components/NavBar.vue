@@ -11,9 +11,9 @@ const router = useRouter();
 </script>
 
 <template>
-  <OnyxNavBar class="navbar" appName="RSS" @navigateToStart="router.push({ name: Routes.Feed })">
+  <OnyxNavBar class="navbar" appName="RSS" @navigateToStart="router.push({ name: Routes.Posts })">
     <template v-if="authStore.user">
-      <RouterLink :to="{ name: Routes.Feed }"><OnyxNavButton href="#" label="Feed" /></RouterLink>
+      <RouterLink :to="{ name: Routes.Posts }"><OnyxNavButton href="#" label="Posts" /></RouterLink>
       <RouterLink :to="{ name: Routes.Edit }"><OnyxNavButton href="#" label="Edit" /></RouterLink>
       <OnyxUserMenu class="navbar__userMenu" :username="authStore.user.name">
         <OnyxColorSchemeMenuItem v-model="colorScheme" />
