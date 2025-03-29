@@ -15,7 +15,7 @@ const router = useRouter();
     <template v-if="authStore.user">
       <RouterLink :to="{ name: Routes.Posts }"><OnyxNavButton href="#" label="Posts" /></RouterLink>
       <RouterLink :to="{ name: Routes.Edit }"><OnyxNavButton href="#" label="Edit" /></RouterLink>
-      <OnyxUserMenu class="navbar__userMenu" :username="authStore.user.name">
+      <OnyxUserMenu class="navbar__userMenu" :fullName="authStore.user.name">
         <OnyxColorSchemeMenuItem v-model="colorScheme" />
       </OnyxUserMenu>
     </template>
