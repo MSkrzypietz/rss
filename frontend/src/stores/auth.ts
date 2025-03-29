@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import type { User } from '@/api/users';
 import AuthAPI from '@/api/auth';
 import UsersAPI from '@/api/users';
-import { Routes } from '@/router';
+import { Route } from '@/router';
 import type { Router } from 'vue-router';
 
 function redirectUserAfterLogin(router: Router) {
@@ -10,7 +10,7 @@ function redirectUserAfterLogin(router: Router) {
   if (typeof query.redirect === 'string') {
     router.push(query.redirect);
   } else {
-    router.push({ name: Routes.Posts });
+    router.push({ name: Route.Posts });
   }
 }
 

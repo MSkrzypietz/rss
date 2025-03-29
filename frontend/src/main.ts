@@ -16,7 +16,7 @@ declare module 'pinia' {
   }
 }
 
-const onyx = createOnyx();
+const onyx = createOnyx({ router });
 const pinia = createPinia();
 const app = createApp(App);
 
