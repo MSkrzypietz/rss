@@ -5,7 +5,7 @@ import { useFeedStore } from '@/stores/feed.ts';
 
 const feedStore = useFeedStore();
 
-const feedOptions = computed((): SelectOption[] => {
+const feedOptions = computed((): SelectOption<number>[] => {
   if (feedStore.feeds === null) {
     return [];
   }
