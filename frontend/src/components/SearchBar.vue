@@ -22,7 +22,7 @@ const feedOptions = computed((): SelectOption<number>[] => {
 <template>
   <div class="onyx-grid">
     <OnyxInput
-      class="onyx-grid-span-8 onyx-grid-lg-span-12"
+      class="onyx-grid-span-8"
       v-model="feedStore.postFilter.searchText"
       label="Search"
       :hideLabel="true"
