@@ -22,14 +22,14 @@ watch(
 
 <template>
   <SearchBar />
-  <div class="onyx-grid feed-item-list">
+  <div class="onyx-grid post-item-list">
     <PostItem v-for="post in postStore.posts" :post="post" class="onyx-grid-span-16">{{ post }}</PostItem>
     <OnyxButton class="onyx-grid-span-16" label="Refresh" @click="postStore.fetchUnreadPosts()" />
   </div>
 </template>
 
 <style scoped lang="scss">
-.feed-item-list {
+.post-item-list {
   margin-top: var(--onyx-spacing-lg);
 
   .onyx-button {

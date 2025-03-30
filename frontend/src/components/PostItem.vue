@@ -20,12 +20,12 @@ if (props.post.published_at !== null) {
 </script>
 
 <template>
-  <a class="feed-item" :href="post.url" target="_blank">
-    <div class="feed-item__header">
+  <a class="post-item" :href="post.url" target="_blank">
+    <div class="post-item__header">
       <OnyxHeadline is="h2">{{ post.title }}</OnyxHeadline>
       <OnyxButton label="Read" density="compact" @click.stop.prevent="postStore.markPostAsRead(post.id)"></OnyxButton>
     </div>
-    <div class="feed-item__content">
+    <div class="post-item__content">
       <span class="onyx-text">{{ post.description }}</span>
     </div>
     <p class="onyx-text">{{ publishDate }} - {{ post.feed_name }}</p>
@@ -33,7 +33,7 @@ if (props.post.published_at !== null) {
 </template>
 
 <style scoped lang="scss">
-.feed-item {
+.post-item {
   background-color: var(--onyx-color-base-background-blank);
   border-radius: var(--onyx-radius-sm);
   text-decoration: unset;
