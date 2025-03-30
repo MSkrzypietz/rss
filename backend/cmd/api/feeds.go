@@ -54,6 +54,7 @@ func (app *application) listFeedsHandler(w http.ResponseWriter, r *http.Request,
 	}
 }
 
+// TODO: Test feed url if it reachable / valid rss feed
 func (app *application) createFeedHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		Name string `json:"name"`

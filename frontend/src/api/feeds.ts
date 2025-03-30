@@ -17,4 +17,8 @@ export default class FeedsAPI {
     }
     return resp.data;
   }
+
+  public static async addNewFeed(name: string, url: string): Promise<void> {
+    await api.post<void>('feeds', { name, url });
+  }
 }

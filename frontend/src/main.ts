@@ -4,7 +4,7 @@ import 'sit-onyx/global.css';
 import 'sit-onyx/style.css';
 
 import { createApp, markRaw } from 'vue';
-import { createOnyx } from 'sit-onyx';
+import { createOnyx, createToastProvider, TOAST_PROVIDER_INJECTION_KEY } from 'sit-onyx';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
@@ -27,5 +27,7 @@ pinia.use(({ store }) => {
 app.use(onyx);
 app.use(pinia);
 app.use(router);
+
+app.provide(TOAST_PROVIDER_INJECTION_KEY, createToastProvider());
 
 app.mount('#app');
