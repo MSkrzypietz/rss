@@ -14,6 +14,7 @@ const router = useRouter();
   <OnyxNavBar class="navbar" appName="RSS" @navigateToStart="router.push({ name: Route.Posts })">
     <template v-if="authStore.user">
       <OnyxNavButton :link="RoutePath.Posts" label="Posts" />
+      <OnyxNavButton :link="RoutePath.Feeds" label="Feeds" />
       <OnyxNavButton :link="RoutePath.Edit" label="Edit" />
       <OnyxUserMenu class="navbar__userMenu" :fullName="authStore.user.name">
         <OnyxColorSchemeMenuItem v-model="colorScheme" />
