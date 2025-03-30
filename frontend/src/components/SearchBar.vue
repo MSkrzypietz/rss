@@ -2,15 +2,17 @@
 import { OnyxInput, OnyxSelect, type SelectOption } from 'sit-onyx';
 import { computed } from 'vue';
 import { usePostStore } from '@/stores/post.ts';
+import { useFeedStore } from '@/stores/feed.ts';
 
 const postStore = usePostStore();
+const feedStore = useFeedStore();
 
 const feedOptions = computed((): SelectOption<number>[] => {
-  if (postStore.feeds === null) {
+  if (feedStore.feeds === null) {
     return [];
   }
 
-  return postStore.feeds.map((feed) => {
+  return feedStore.feeds.map((feed) => {
     return {
       value: feed.id,
       label: feed.name,

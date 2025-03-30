@@ -8,7 +8,6 @@ export const usePostStore = defineStore('post', {
   state: () => {
     return {
       posts: null as Post[] | null,
-      feeds: null as Feed[] | null,
       postFilter: {
         searchText: '',
         selectedFeedIDs: [] as number[],
@@ -17,9 +16,6 @@ export const usePostStore = defineStore('post', {
   },
   getters: {},
   actions: {
-    async fetchFeeds() {
-      this.feeds = await FeedsAPI.getFeeds();
-    },
     async fetchUnreadPosts() {
       this.posts = await PostsAPI.getUnreadPosts(this.postFilter);
     },

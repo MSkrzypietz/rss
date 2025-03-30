@@ -5,11 +5,13 @@ import { usePostStore } from '@/stores/post.ts';
 import { OnyxButton } from 'sit-onyx';
 import SearchBar from '@/components/SearchBar.vue';
 import { debounce } from '@/utils/debounce.ts';
+import { useFeedStore } from '@/stores/feed.ts';
 
 const postStore = usePostStore();
+const feedStore = useFeedStore();
 
 onMounted(async () => {
-  await Promise.all([postStore.fetchUnreadPosts(), postStore.fetchFeeds()]);
+  await Promise.all([postStore.fetchUnreadPosts(), feedStore.fetchFeeds()]);
 });
 
 watch(
