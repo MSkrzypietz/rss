@@ -37,7 +37,7 @@ const feedOptions = computed((): SelectOption<number>[] => {
       listLabel="Feed selection"
       :options="feedOptions"
       :withSearch="true"
-      multiple
+      :multiple="true"
       placeholder="Feed" />
   </div>
 </template>
