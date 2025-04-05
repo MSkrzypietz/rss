@@ -7,12 +7,21 @@ import type { Feed } from '@/api/feeds.ts';
 const feedStore = useFeedStore();
 
 const data = computed(() => {
-  return feedStore.feeds ?? [];
+  if (!feedStore.feeds) {
+    return [];
+  }
+  return feedStore.feeds.map((feed: Feed) => {
+    return {
+      ...feed,
+      last_fetched_at: feed.last_fetched_at ? new Date(feed.last_fetched_at).toLocaleString() : '-',
+    };
+  });
 });
 
 const columns: ColumnConfig<Feed, ColumnGroupConfig, never>[] = [
   { key: 'name', label: 'Name' },
   { key: 'url', label: 'URL' },
+  { key: 'last_fetched_at', label: 'Last Update' },
 ];
 </script>
 

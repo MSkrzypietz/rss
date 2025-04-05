@@ -5,6 +5,7 @@ export type Feed = {
   user_id: number;
   name: string;
   url: string;
+  last_fetched_at: string | null;
   created_at: string;
   updated_at: string;
 };

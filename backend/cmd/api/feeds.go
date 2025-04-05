@@ -12,7 +12,7 @@ type GetFeedResponse struct {
 	UserID        int64      `json:"user_id"`
 	Name          string     `json:"name"`
 	Url           string     `json:"url"`
-	LastFetchedAt *time.Time `json:"-"`
+	LastFetchedAt *time.Time `json:"last_fetched_at"`
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at"`
 }
