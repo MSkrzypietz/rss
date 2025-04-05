@@ -3,7 +3,6 @@ import LoginView from '@/views/LoginView.vue';
 import PostsView from '@/views/PostsView.vue';
 import { useAuthStore } from '@/stores/auth';
 import NotFoundView from '@/views/NotFoundView.vue';
-import EditView from '@/views/EditView.vue';
 import FeedsView from '@/views/FeedsView.vue';
 
 declare module 'vue-router' {
@@ -16,14 +15,12 @@ export enum Route {
   Login = 'Login',
   Posts = 'Posts',
   Feeds = 'Feeds',
-  Edit = 'Edit',
 }
 
 export const RoutePath: { [route in Route]: string } = {
   [Route.Login]: '/login',
   [Route.Posts]: '/',
   [Route.Feeds]: '/feeds',
-  [Route.Edit]: '/edit',
 };
 
 const router = createRouter({
@@ -46,14 +43,6 @@ const router = createRouter({
       path: RoutePath.Feeds,
       name: Route.Feeds,
       component: FeedsView,
-      meta: {
-        requiresAuth: true,
-      },
-    },
-    {
-      path: RoutePath.Edit,
-      name: Route.Edit,
-      component: EditView,
       meta: {
         requiresAuth: true,
       },
