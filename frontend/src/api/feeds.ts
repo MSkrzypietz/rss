@@ -20,6 +20,10 @@ export default class FeedsAPI {
   }
 
   public static async addNewFeed(name: string, url: string): Promise<void> {
-    await api.post<void>('feeds', { name, url });
+    await api.post('feeds', { name, url });
+  }
+
+  public static async updateFeed(id: number): Promise<void> {
+    await api.post(`feeds/${id}/fetch`, {});
   }
 }

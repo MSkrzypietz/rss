@@ -13,5 +13,9 @@ export const useFeedStore = defineStore('feed', {
     async fetchFeeds() {
       this.feeds = await FeedsAPI.getFeeds();
     },
+    async updateFeed(id: number) {
+      await FeedsAPI.updateFeed(id);
+      await this.fetchFeeds();
+    },
   },
 });
