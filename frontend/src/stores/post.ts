@@ -1,12 +1,11 @@
 import { defineStore } from 'pinia';
 import type { Post, PostFilter } from '@/api/posts.ts';
 import PostsAPI from '@/api/posts.ts';
-import type { Feed } from '@/api/feeds.ts';
-import FeedsAPI from '@/api/feeds.ts';
 
 export const usePostStore = defineStore('post', {
   state: () => {
     return {
+      isFetchingPosts: false,
       posts: null as Post[] | null,
       postFilter: {
         searchText: '',
@@ -17,7 +16,12 @@ export const usePostStore = defineStore('post', {
   getters: {},
   actions: {
     async fetchUnreadPosts() {
-      this.posts = await PostsAPI.getUnreadPosts(this.postFilter);
+      try {
+        this.isFetchingPosts = true;
+        this.posts = await PostsAPI.getUnreadPosts(this.postFilter);
+      } finally {
+        this.isFetchingPosts = false;
+      }
     },
     async markPostAsRead(postID: number) {
       await PostsAPI.markPostAsRead(postID);
