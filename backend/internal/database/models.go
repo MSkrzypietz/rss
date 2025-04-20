@@ -66,9 +66,10 @@ type Session struct {
 }
 
 type User struct {
-	ID        int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Name      string
-	Apikey    string
+	ID             int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	Name           string
+	Apikey         string
+	TelegramChatID sql.NullInt64
 }

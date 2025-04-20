@@ -37,7 +37,7 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 }
 
 const getUserBySession = `-- name: GetUserBySession :one
-SELECT u.id, u.created_at, u.updated_at, u.name, u.apikey FROM sessions s
+SELECT u.id, u.created_at, u.updated_at, u.name, u.apikey, u.telegram_chat_id FROM sessions s
     INNER JOIN users u ON u.id=s.user_id
     WHERE token=? AND expires_at>CURRENT_TIMESTAMP
 `
@@ -51,6 +51,7 @@ func (q *Queries) GetUserBySession(ctx context.Context, token string) (User, err
 		&i.UpdatedAt,
 		&i.Name,
 		&i.Apikey,
+		&i.TelegramChatID,
 	)
 	return i, err
 }

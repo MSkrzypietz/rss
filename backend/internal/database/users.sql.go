@@ -7,13 +7,14 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (created_at, updated_at, name, apikey)
 VALUES (?, ?, ?, ?)
-    RETURNING id, created_at, updated_at, name, apikey
+    RETURNING id, created_at, updated_at, name, apikey, telegram_chat_id
 `
 
 type CreateUserParams struct {
@@ -37,12 +38,13 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.Name,
 		&i.Apikey,
+		&i.TelegramChatID,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, created_at, updated_at, name, apikey
+SELECT id, created_at, updated_at, name, apikey, telegram_chat_id
 FROM users
 WHERE apiKey=?
 `
@@ -56,6 +58,21 @@ func (q *Queries) GetUser(ctx context.Context, apikey string) (User, error) {
 		&i.UpdatedAt,
 		&i.Name,
 		&i.Apikey,
+		&i.TelegramChatID,
 	)
 	return i, err
+}
+
+const updateUserTelegramChatID = `-- name: UpdateUserTelegramChatID :exec
+UPDATE users SET telegram_chat_id=?, updated_at=CURRENT_TIMESTAMP WHERE id=?
+`
+
+type UpdateUserTelegramChatIDParams struct {
+	TelegramChatID sql.NullInt64
+	ID             int64
+}
+
+func (q *Queries) UpdateUserTelegramChatID(ctx context.Context, arg UpdateUserTelegramChatIDParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserTelegramChatID, arg.TelegramChatID, arg.ID)
+	return err
 }
