@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"github.com/MSkrzypietz/rss/internal/database"
+	"github.com/go-telegram/bot"
 	"github.com/joho/godotenv"
 	"io"
 	"log/slog"
@@ -20,9 +21,10 @@ type config struct {
 }
 
 type application struct {
-	logger     *slog.Logger
-	db         *database.Queries
-	httpClient *http.Client
+	logger      *slog.Logger
+	db          *database.Queries
+	httpClient  *http.Client
+	telegramBot *bot.Bot
 }
 
 func main() {
@@ -66,10 +68,27 @@ func main() {
 		os.Exit(1)
 	}
 
+	telegramBotToken := os.Getenv("TELEGRAM_BOT_TOKEN")
+	if telegramBotToken == "" {
+		logger.Error("TELEGRAM_BOT_TOKEN is undefined")
+		os.Exit(1)
+	}
+
+	telegramBot, err := newBot(telegramBotToken)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+	go func() {
+		telegramBot.Start(context.Background())
+	}()
+
 	app := &application{
-		logger:     logger,
-		db:         database.New(db),
-		httpClient: &http.Client{Timeout: 5 * time.Second},
+		logger:      logger,
+		db:          database.New(db),
+		httpClient:  &http.Client{Timeout: 5 * time.Second},
+		telegramBot: telegramBot,
 	}
 	go app.ContinuousFeedScraping()
 

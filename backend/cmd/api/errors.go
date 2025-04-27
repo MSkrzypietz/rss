@@ -49,3 +49,8 @@ func (app *application) authenticationRequiredResponse(w http.ResponseWriter, r 
 	message := "you must be authenticated to access this resource"
 	app.errorResponse(w, r, http.StatusUnauthorized, message)
 }
+
+func (app *application) missingIntegrationResponse(w http.ResponseWriter, r *http.Request) {
+	message := "you must setup the integration first to use this resource"
+	app.errorResponse(w, r, http.StatusUnprocessableEntity, message)
+}

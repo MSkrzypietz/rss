@@ -32,6 +32,8 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/posts", app.authenticate(app.getUnreadPostsHandler))
 	router.HandlerFunc(http.MethodPost, "/v1/posts/:id/read", app.authenticate(app.markPostAsReadHandler))
 
+	router.HandlerFunc(http.MethodPost, "/v1/telegram/echo", app.authenticate(app.telegramEchoHandler))
+
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/readiness", app.getReadinessHandler)
 
