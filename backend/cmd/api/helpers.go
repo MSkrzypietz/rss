@@ -118,3 +118,7 @@ func (app *application) readCSVInt64s(qs url.Values, key string, defaultValue []
 	}
 	return defaultValue, nil
 }
+
+func pointTo[T any](x T) *T {
+	return &x
+}

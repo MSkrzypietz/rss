@@ -47,6 +47,33 @@ func (q *Queries) DeleteFeedFollow(ctx context.Context, arg DeleteFeedFollowPara
 	return err
 }
 
+const getFeedFollowers = `-- name: GetFeedFollowers :many
+SELECT user_id from feed_follows WHERE feed_id=?
+`
+
+func (q *Queries) GetFeedFollowers(ctx context.Context, feedID int64) ([]int64, error) {
+	rows, err := q.db.QueryContext(ctx, getFeedFollowers, feedID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var user_id int64
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFeedFollows = `-- name: GetFeedFollows :many
 SELECT id, created_at, updated_at, user_id, feed_id from feed_follows WHERE user_id=?
 `

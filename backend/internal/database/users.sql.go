@@ -43,14 +43,34 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const getUser = `-- name: GetUser :one
+const getUserByApiKey = `-- name: GetUserByApiKey :one
 SELECT id, created_at, updated_at, name, apikey, telegram_chat_id
 FROM users
 WHERE apiKey=?
 `
 
-func (q *Queries) GetUser(ctx context.Context, apikey string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, apikey)
+func (q *Queries) GetUserByApiKey(ctx context.Context, apikey string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByApiKey, apikey)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Apikey,
+		&i.TelegramChatID,
+	)
+	return i, err
+}
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, created_at, updated_at, name, apikey, telegram_chat_id
+FROM users
+WHERE id=?
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
 		&i.ID,

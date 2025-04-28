@@ -11,5 +11,12 @@ SELECT p.*, f.name as feed_name FROM posts p
 -- name: CreatePost :one
 INSERT INTO posts (title, url, description, published_at, feed_id)
     VALUES (?, ?, ?, ?, ?)
-    ON CONFLICT(url) DO UPDATE SET url=posts.url
     RETURNING *;
+
+-- name: GetNewPostsForUser :many
+SELECT p.*, f.name as feed_name FROM posts p
+    INNER JOIN users u ON u.id = ff.user_id
+    INNER JOIN feed_follows ff ON ff.feed_id=p.feed_id
+    INNER JOIN feeds f ON f.id=p.feed_id
+    LEFT JOIN post_reads pr ON pr.user_id=ff.user_id AND pr.post_id=p.id
+    WHERE p.id IN (sqlc.slice('newPostIDs'));

@@ -38,7 +38,7 @@ func (app *application) getUserByAuthHeader(r *http.Request) (database.User, boo
 		return database.User{}, false
 	}
 
-	user, err := app.db.GetUser(r.Context(), apiKey)
+	user, err := app.db.GetUserByApiKey(r.Context(), apiKey)
 	if err != nil {
 		return database.User{}, false
 	}
@@ -70,7 +70,7 @@ func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.db.GetUser(r.Context(), params.ApiKey)
+	user, err := app.db.GetUserByApiKey(r.Context(), params.ApiKey)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

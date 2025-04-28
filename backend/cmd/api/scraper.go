@@ -3,8 +3,11 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/MSkrzypietz/rss/internal/parser"
+	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 	"net/http"
 	"strings"
 	"sync"
@@ -68,14 +71,55 @@ func (app *application) fetchFeed(feed database.Feed) {
 			FeedID: feed.ID,
 		})
 		if err != nil {
-			app.logger.Error("Feed Fetcher could not create the post", "error", err)
+			if !strings.Contains(err.Error(), "UNIQUE constraint") {
+				app.logger.Error("Feed Fetcher could not create the post", "error", err)
+			}
 		} else {
 			newPosts = append(newPosts, post)
 		}
 	}
 
-	if err = app.applyFeedFilters(feed.ID, newPosts); err != nil {
-		app.logger.Error("Feed Fetcher could not apply the feed filters: %v\n", "error", err)
+	filteredUserPosts := app.applyFeedFilters(feed.ID, newPosts)
+
+	feedFollowers, err := app.db.GetFeedFollowers(context.Background(), feed.ID)
+	if err != nil {
+		app.logger.Error("Feed Fetcher could not get the followers for the feed", "error", err)
+		return
+	}
+
+	for _, feedFollowerID := range feedFollowers {
+		msg := ""
+		for _, post := range newPosts {
+			if _, ok := filteredUserPosts[feedFollowerID]; ok {
+				if _, ok := filteredUserPosts[feedFollowerID][post.ID]; ok {
+					continue
+				}
+			}
+			msg += fmt.Sprintf("\n\\- [%s](%s)", bot.EscapeMarkdown(post.Title), post.Url)
+		}
+
+		if msg == "" {
+			continue
+		}
+		msg = "New posts:" + msg
+
+		user, err := app.db.GetUserByID(context.Background(), feedFollowerID)
+		if err != nil {
+			app.logger.Error("Feed Fetcher could not get the user", "user", feedFollowerID, "error", err)
+			continue
+		}
+
+		_, err = app.telegramBot.SendMessage(context.Background(), &bot.SendMessageParams{
+			ChatID:    user.TelegramChatID.Int64,
+			Text:      msg,
+			ParseMode: models.ParseModeMarkdown,
+			LinkPreviewOptions: &models.LinkPreviewOptions{
+				IsDisabled: pointTo(true),
+			},
+		})
+		if err != nil {
+			app.logger.Error("Feed Fetcher could not send a message to the user", "user", feedFollowerID, "error", err)
+		}
 	}
 }
 
@@ -100,12 +144,13 @@ func (app *application) ContinuousFeedScraping() {
 	}
 }
 
-func (app *application) applyFeedFilters(feedID int64, newPosts []database.Post) error {
+func (app *application) applyFeedFilters(feedID int64, newPosts []database.Post) map[int64]map[int64]struct{} {
 	feedFilters, err := app.db.GetFeedFilters(context.Background(), feedID)
 	if err != nil {
-		return err
+		return nil
 	}
 
+	filteredUserPosts := make(map[int64]map[int64]struct{})
 	for _, feedFilter := range feedFilters {
 		filterText := strings.ToLower(feedFilter.FilterText)
 		for _, post := range newPosts {
@@ -116,11 +161,15 @@ func (app *application) applyFeedFilters(feedID int64, newPosts []database.Post)
 					PostID: post.ID,
 				})
 				if err != nil {
-					return err
+					app.logger.Error("Feed Fetcher could not create the post", "error", err)
+					continue
 				}
+				if _, ok := filteredUserPosts[feedFilter.UserID]; !ok {
+					filteredUserPosts[feedFilter.UserID] = make(map[int64]struct{})
+				}
+				filteredUserPosts[feedFilter.UserID][post.ID] = struct{}{}
 			}
 		}
 	}
-
-	return nil
+	return filteredUserPosts
 }

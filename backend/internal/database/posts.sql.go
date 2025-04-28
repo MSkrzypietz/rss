@@ -15,7 +15,6 @@ import (
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts (title, url, description, published_at, feed_id)
     VALUES (?, ?, ?, ?, ?)
-    ON CONFLICT(url) DO UPDATE SET url=posts.url
     RETURNING id, created_at, updated_at, title, url, description, published_at, feed_id
 `
 
@@ -47,6 +46,70 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		&i.FeedID,
 	)
 	return i, err
+}
+
+const getNewPostsForUser = `-- name: GetNewPostsForUser :many
+SELECT p.id, p.created_at, p.updated_at, p.title, p.url, p.description, p.published_at, p.feed_id, f.name as feed_name FROM posts p
+    INNER JOIN users u ON u.id = ff.user_id
+    INNER JOIN feed_follows ff ON ff.feed_id=p.feed_id
+    INNER JOIN feeds f ON f.id=p.feed_id
+    LEFT JOIN post_reads pr ON pr.user_id=ff.user_id AND pr.post_id=p.id
+    WHERE p.id IN (/*SLICE:newPostIDs*/?)
+`
+
+type GetNewPostsForUserRow struct {
+	ID          int64
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Title       string
+	Url         string
+	Description sql.NullString
+	PublishedAt sql.NullTime
+	FeedID      int64
+	FeedName    string
+}
+
+func (q *Queries) GetNewPostsForUser(ctx context.Context, newpostids []int64) ([]GetNewPostsForUserRow, error) {
+	query := getNewPostsForUser
+	var queryParams []interface{}
+	if len(newpostids) > 0 {
+		for _, v := range newpostids {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:newPostIDs*/?", strings.Repeat(",?", len(newpostids))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:newPostIDs*/?", "NULL", 1)
+	}
+	rows, err := q.db.QueryContext(ctx, query, queryParams...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetNewPostsForUserRow
+	for rows.Next() {
+		var i GetNewPostsForUserRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Title,
+			&i.Url,
+			&i.Description,
+			&i.PublishedAt,
+			&i.FeedID,
+			&i.FeedName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUnreadPostsForUser = `-- name: GetUnreadPostsForUser :many
