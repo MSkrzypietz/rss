@@ -101,7 +101,7 @@ func (app *application) fetchFeed(feed database.Feed) {
 		if msg == "" {
 			continue
 		}
-		msg = "New posts:" + msg
+		msg = fmt.Sprintf("New posts by %s:", feed.Name) + msg
 
 		user, err := app.db.GetUserByID(context.Background(), feedFollowerID)
 		if err != nil {
