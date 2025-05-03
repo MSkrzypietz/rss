@@ -40,7 +40,7 @@ func (app *application) listFeedFollowsHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, mapGetFeedFollowResponses(feedFollows), nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"feed_follows": mapGetFeedFollowResponses(feedFollows)}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -67,7 +67,7 @@ func (app *application) createFeedFollowHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, mapGetFeedFollowResponse(feedFollow), nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"feed_follow": mapGetFeedFollowResponse(feedFollow)}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -89,7 +89,7 @@ func (app *application) deleteFeedFollowHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, struct{}{}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

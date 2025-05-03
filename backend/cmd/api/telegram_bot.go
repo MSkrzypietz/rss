@@ -33,7 +33,7 @@ func (app *application) telegramEchoHandler(w http.ResponseWriter, r *http.Reque
 		app.serverErrorResponse(w, r, err)
 	}
 
-	err = app.writeJSON(w, http.StatusOK, struct{}{}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

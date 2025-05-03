@@ -97,7 +97,7 @@ func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	err = app.writeJSON(w, http.StatusOK, mapGetUserResponse(user), nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": mapGetUserResponse(user)}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

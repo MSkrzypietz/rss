@@ -20,11 +20,11 @@ export type PostFilter = {
 export default class PostsAPI {
   public static async getUnreadPosts(filter?: PostFilter): Promise<Post[] | null> {
     const params = this._getPostFilterQueryParams(filter);
-    const resp = await api.get<Post[]>('posts', { params });
+    const resp = await api.get('posts', { params });
     if (resp.status !== 200) {
       return null;
     }
-    return resp.data;
+    return resp.data.posts;
   }
 
   private static _getPostFilterQueryParams(filter?: PostFilter): { [key: string]: any } {

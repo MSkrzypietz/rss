@@ -12,11 +12,11 @@ export type Feed = {
 
 export default class FeedsAPI {
   public static async getFeeds(): Promise<Feed[] | null> {
-    const resp = await api.get<Feed[]>('feeds');
+    const resp = await api.get('feeds');
     if (resp.status !== 200) {
       return null;
     }
-    return resp.data;
+    return resp.data.feeds;
   }
 
   public static async addNewFeed(name: string, url: string): Promise<void> {

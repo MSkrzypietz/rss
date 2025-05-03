@@ -48,7 +48,7 @@ func (app *application) listFeedsHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, mapGetFeedResponses(feeds), nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"feeds": mapGetFeedResponses(feeds)}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -88,13 +88,9 @@ func (app *application) createFeedHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	type returnVals struct {
-		Feed       GetFeedResponse       `json:"feed"`
-		FeedFollow GetFeedFollowResponse `json:"feed_follow"`
-	}
-	err = app.writeJSON(w, http.StatusOK, returnVals{
-		Feed:       mapGetFeedResponse(feed),
-		FeedFollow: mapGetFeedFollowResponse(feedFollow),
+	err = app.writeJSON(w, http.StatusOK, envelope{
+		"feed":        mapGetFeedResponse(feed),
+		"feed_follow": mapGetFeedFollowResponse(feedFollow),
 	}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -116,7 +112,7 @@ func (app *application) fetchFeedHandler(w http.ResponseWriter, r *http.Request,
 
 	app.fetchFeed(feed)
 
-	err = app.writeJSON(w, http.StatusOK, struct{}{}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

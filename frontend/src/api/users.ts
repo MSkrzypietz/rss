@@ -7,10 +7,10 @@ export interface User {
 
 export default class UsersAPI {
   public static async getCurrentUser(): Promise<User | null> {
-    const resp = await api.get<User>('users');
+    const resp = await api.get('users');
     if (resp.status !== 200) {
       return null;
     }
-    return resp.data;
+    return resp.data.user;
   }
 }

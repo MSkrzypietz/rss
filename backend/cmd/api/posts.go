@@ -71,7 +71,7 @@ func (app *application) getUnreadPostsHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, mapGetUnreadPostResponses(posts), nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"posts": mapGetUnreadPostResponses(posts)}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -93,7 +93,7 @@ func (app *application) markPostAsReadHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, struct{}{}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

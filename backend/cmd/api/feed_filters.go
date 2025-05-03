@@ -44,7 +44,7 @@ func (app *application) listFeedFiltersHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, mapGetFeedFilterResponses(feedFilters), nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"feed_filters": mapGetFeedFilterResponses(feedFilters)}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -73,7 +73,7 @@ func (app *application) createFeedFilterHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, mapGetFeedFilterResponse(feedFilter), nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"feed_filter": mapGetFeedFilterResponse(feedFilter)}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -92,7 +92,7 @@ func (app *application) deleteFeedFilterHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, struct{}{}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
