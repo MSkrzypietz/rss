@@ -9,5 +9,8 @@ services:
       - "8222:8222"
     command: ["--js", "--store_dir=/data"]
     volumes:
-      - ./nats-data:/data
+      - nats-data:/data
     restart: unless-stopped
+
+volumes:
+  nats-data:
