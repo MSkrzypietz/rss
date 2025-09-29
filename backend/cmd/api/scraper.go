@@ -3,19 +3,34 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
-	"github.com/MSkrzypietz/rss/internal/database"
-	"github.com/MSkrzypietz/rss/internal/parser"
-	"github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/MSkrzypietz/rss/internal/database"
+	"github.com/MSkrzypietz/rss/internal/parser"
+	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
+	"github.com/nats-io/nats.go"
 )
 
 const fetchInterval = 3 * time.Hour
 const fetchLimit = 2
+
+func (app *application) startFeedFetchSubscription() (*nats.Subscription, error) {
+	return app.nc.Subscribe(topicFeedFetch, func(msg *nats.Msg) {
+		feed := database.Feed{}
+		err := json.Unmarshal(msg.Data, &feed)
+		if err != nil {
+			app.logger.Error("error unmarshalling feed from nats msg: %v", err)
+			return
+		}
+		app.fetchFeed(feed)
+	})
+}
 
 func (app *application) getFeedByUrl(url string) (parser.Feed, error) {
 	var feed parser.Feed
@@ -137,6 +152,16 @@ func (app *application) ContinuousFeedScraping() {
 		for _, feed := range feedsToFetch {
 			go func() {
 				defer wg.Done()
+				data, err := json.Marshal(feed)
+				if err != nil {
+					app.logger.Error("error unmarshalling feed", "error", err)
+					return
+				}
+				err = app.nc.Publish(topicFeedFetch, data)
+				if err != nil {
+					app.logger.Error("error publishing feed", "error", err)
+					return
+				}
 				app.fetchFeed(feed)
 			}()
 		}

@@ -2,9 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/MSkrzypietz/rss/internal/database"
 	"net/http"
 	"time"
+
+	"github.com/MSkrzypietz/rss/internal/database"
 )
 
 type GetFeedResponse struct {
@@ -110,7 +111,17 @@ func (app *application) fetchFeedHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	app.fetchFeed(feed)
+	data, err := json.Marshal(feed)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.nc.Publish(topicFeedFetch, data)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{}, nil)
 	if err != nil {

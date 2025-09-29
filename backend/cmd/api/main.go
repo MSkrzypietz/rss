@@ -4,9 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+
 	"github.com/MSkrzypietz/rss/internal/database"
 	"github.com/go-telegram/bot"
 	"github.com/joho/godotenv"
+	"github.com/nats-io/nats.go"
+
 	"io"
 	"log/slog"
 	"net/http"
@@ -25,6 +28,7 @@ type application struct {
 	db          *database.Queries
 	httpClient  *http.Client
 	telegramBot *bot.Bot
+	nc          *nats.Conn
 }
 
 func main() {
@@ -84,13 +88,34 @@ func main() {
 		telegramBot.Start(context.Background())
 	}()
 
+	natsConnectionString := os.Getenv("NATS_CONNECTION_STRING")
+	if natsConnectionString == "" {
+		logger.Error("NATS_CONNECTION_STRING is undefined")
+		os.Exit(1)
+	}
+
+	nc, err := nats.Connect(natsConnectionString)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+	defer nc.Close()
+
 	app := &application{
 		logger:      logger,
 		db:          database.New(db),
 		httpClient:  &http.Client{Timeout: 5 * time.Second},
 		telegramBot: telegramBot,
+		nc:          nc,
 	}
 	go app.ContinuousFeedScraping()
+
+	sub, err := app.startFeedFetchSubscription()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+	defer sub.Unsubscribe()
 
 	srv := http.Server{
 		Addr:    ":" + httpPort,
