@@ -117,7 +117,7 @@ func (app *application) fetchFeedHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	err = app.nc.Publish(topicFeedFetch, data)
+	_, err = app.js.PublishAsync("feeds.new", data)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -9,6 +9,7 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/joho/godotenv"
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 
 	"io"
 	"log/slog"
@@ -28,7 +29,7 @@ type application struct {
 	db          *database.Queries
 	httpClient  *http.Client
 	telegramBot *bot.Bot
-	nc          *nats.Conn
+	js          jetstream.JetStream
 }
 
 func main() {
@@ -101,21 +102,28 @@ func main() {
 	}
 	defer nc.Close()
 
+	js, err := jetstream.New(nc)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	app := &application{
 		logger:      logger,
 		db:          database.New(db),
 		httpClient:  &http.Client{Timeout: 5 * time.Second},
 		telegramBot: telegramBot,
-		nc:          nc,
+		js:          js,
 	}
 	go app.ContinuousFeedScraping()
 
-	sub, err := app.startFeedFetchSubscription()
+	feedConsumeCtx, err := app.startFeedFetchSubscription(context.Background())
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
-	defer sub.Unsubscribe()
+	// TODO: probably should drain
+	defer feedConsumeCtx.Stop()
 
 	srv := http.Server{
 		Addr:    ":" + httpPort,

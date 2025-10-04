@@ -14,22 +14,50 @@ import (
 	"github.com/MSkrzypietz/rss/internal/parser"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
-	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 )
 
 const fetchInterval = 3 * time.Hour
 const fetchLimit = 2
 
-func (app *application) startFeedFetchSubscription() (*nats.Subscription, error) {
-	return app.nc.Subscribe(topicFeedFetch, func(msg *nats.Msg) {
+func (app *application) startFeedFetchSubscription(ctx context.Context) (jetstream.ConsumeContext, error) {
+	_, err := app.js.CreateOrUpdateStream(ctx, jetstream.StreamConfig{
+		Name:     "FEEDS",
+		Subjects: []string{"feeds.*"},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error creating feed stream: %w", err)
+	}
+
+	newFeedsConsumer, err := app.js.CreateOrUpdateConsumer(ctx, "FEEDS", jetstream.ConsumerConfig{
+		Durable:       "feed-processor",
+		AckPolicy:     jetstream.AckExplicitPolicy,
+		MaxDeliver:    3,
+		FilterSubject: "feeds.new",
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error creating feed-processor: %w", err)
+	}
+
+	consumeContext, err := newFeedsConsumer.Consume(func(msg jetstream.Msg) {
 		feed := database.Feed{}
-		err := json.Unmarshal(msg.Data, &feed)
+		err := json.Unmarshal(msg.Data(), &feed)
 		if err != nil {
 			app.logger.Error("error unmarshalling feed from nats msg: %v", err)
 			return
 		}
 		app.fetchFeed(feed)
+		err = msg.Ack()
+		if err != nil {
+			app.logger.Error("error acking feed from nats msg: %v", err)
+			return
+		}
 	})
+	if err != nil {
+		return nil, fmt.Errorf("error fetching feed from nats: %w", err)
+	}
+
+	return consumeContext, nil
 }
 
 func (app *application) getFeedByUrl(url string) (parser.Feed, error) {
@@ -157,12 +185,11 @@ func (app *application) ContinuousFeedScraping() {
 					app.logger.Error("error unmarshalling feed", "error", err)
 					return
 				}
-				err = app.nc.Publish(topicFeedFetch, data)
+				_, err = app.js.PublishAsync("feeds.new", data)
 				if err != nil {
 					app.logger.Error("error publishing feed", "error", err)
 					return
 				}
-				app.fetchFeed(feed)
 			}()
 		}
 		wg.Wait()
