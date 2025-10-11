@@ -3,9 +3,13 @@ name: Docker Build and Push
 on:
   push:
     branches: ["main"]
+  pull_request:
+    branches: [ "main" ]
+    types: [ closed ]
 
 jobs:
   build-and-push:
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
